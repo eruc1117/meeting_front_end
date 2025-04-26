@@ -1,8 +1,8 @@
 import { StyledButton } from "./styles";
 import { ButtonProps } from "../types";
 
-export const Button = ({ color, children, onClick }: ButtonProps) => (
-  <StyledButton color={color} onClick={onClick}>
+export const Button = ({ bgColor, strColor, children, onClick }: ButtonProps) => (
+  <StyledButton bgColor={bgColor} strColor={strColor} onClick={onClick}>
     {children}
   </StyledButton>
 );

@@ -1,8 +1,14 @@
 import styled from "styled-components";
 
-export const StyledButton = styled("button")<{ color?: string }>`
-  background: ${(p) => p.color || "#2e186a"};
-  color: ${(p) => (p.color ? "#2E186A" : "#fff")};
+interface buttonColor {
+  strColor?: string;
+  bgColor?: string;
+}
+
+
+export const StyledButton = styled("button")<buttonColor>`
+  background: ${(p) => p.bgColor || "black"};
+  color: ${(p) => (p.strColor ? "black" : "#fff")};
   font-size: 1rem;
   font-weight: 700;
   width: 100%;

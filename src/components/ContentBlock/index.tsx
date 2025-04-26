@@ -51,11 +51,12 @@ const ContentBlock = ({
               <Content>{t(content)}</Content>
               {direction === "right" ? (
                 <ButtonWrapper>
-                  {typeof button === "object" &&
+                  {typeof button === "object" && 
                     button.map(
                       (
                         item: {
-                          color?: string;
+                          bgColor?: string;
+                          strColor?: string;
                           title: string;
                         },
                         id: number
@@ -63,7 +64,8 @@ const ContentBlock = ({
                         return (
                           <Button
                             key={id}
-                            color={item.color}
+                            bgColor={item.bgColor}
+                            strColor={item.strColor}
                             onClick={() => scrollTo("about")}
                           >
                             {t(item.title)}

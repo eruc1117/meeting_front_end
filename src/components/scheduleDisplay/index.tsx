@@ -34,7 +34,7 @@ const ScheduleDisplay = ({ t }: ScheduleDisPlayProps) => {
       <Row
         justify="center"
         align="middle"
-        style={{ flexDirection: "column" }}
+        style={{ flexDirection: "column", marginBottom: "1rem"}}
       >
 
         <Slide direction="right" triggerOnce>
@@ -91,7 +91,7 @@ const ScheduleDisplay = ({ t }: ScheduleDisPlayProps) => {
           </FormGroup>
         </Slide>
       </Row>
-      <Table columns={columns} data={data} />
+      <Table columns={columns} data={data}/>
     </ScheduleDisplayContainer>
   );
 };

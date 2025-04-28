@@ -34,53 +34,62 @@ const ScheduleDisplay = ({ t }: ScheduleDisPlayProps) => {
       <Row
         justify="center"
         align="middle"
-        style={{flexDirection: "column" }}
+        style={{ flexDirection: "column" }}
       >
 
-          <Slide direction="right" triggerOnce>
-            <FormGroup autoComplete="off" onSubmit={handleSubmit} style={{ width: "100%" }}>
-              <Row gutter={[16, 16]} justify="center" align="middle">
-                <Col xs={24} sm={8}>
-                  <Input
-                    type="text"
-                    name="name"
-                    placeholder="Your Name"
-                    value={values.name || ""}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="name" />
-                </Col>
+        <Slide direction="right" triggerOnce>
+          <FormGroup autoComplete="off" onSubmit={handleSubmit} style={{ width: "100%" }}>
+            <Row gutter={[16, 16]} justify="center" align="middle">
+              <Col xs={24} sm={8}>
+                <Input
+                  type="text"
+                  name="name"
+                  placeholder="Your Name"
+                  value={values.name || ""}
+                  onChange={handleChange}
+                />
+                <ValidationType type="name" />
+              </Col>
 
-                <Col xs={24} sm={8}>
-                  <Input
-                    type="text"
-                    name="name"
-                    placeholder="Your Name"
-                    value={values.name || ""}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="name" />
-                </Col>
+              <Col xs={24} sm={8}>
+                <Input
+                  type="text"
+                  name="name"
+                  placeholder="Your Name"
+                  value={values.name || ""}
+                  onChange={handleChange}
+                />
+                <ValidationType type="name" />
+              </Col>
 
 
-                <Col xs={24} sm={8}>
-                  <Input
-                    type="text"
-                    name="email"
-                    placeholder="Your Email"
-                    value={values.email || ""}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="email" />
-                </Col>
-                <Col span={24}>
-                  <ButtonContainer style={{ textAlign: "center" }}>
-                    <Button name="submit">{t("查詢")}</Button>
-                  </ButtonContainer>
-                </Col>
-              </Row>
-            </FormGroup>
-          </Slide>
+              <Col xs={24} sm={8}>
+                <Input
+                  type="text"
+                  name="email"
+                  placeholder="Your Email"
+                  value={values.email || ""}
+                  onChange={handleChange}
+                />
+                <ValidationType type="email" />
+              </Col>
+              <Col span={24}>
+                <Row gutter={[16, 16]} justify="center" align="middle">
+                  <Col lg={12} md={12} sm={24} xs={24}>
+                    <ButtonContainer style={{ textAlign: "center" }}>
+                      <Button name="submit">{t("查詢事件")}</Button>
+                    </ButtonContainer>
+                  </Col>
+                  <Col lg={12} md={12} sm={24} xs={24}>
+                    <ButtonContainer style={{ textAlign: "center" }}>
+                      <Button name="submit">{t("查詢空閒")}</Button>
+                    </ButtonContainer>
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
+          </FormGroup>
+        </Slide>
       </Row>
       <Table columns={columns} data={data} />
     </ScheduleDisplayContainer>

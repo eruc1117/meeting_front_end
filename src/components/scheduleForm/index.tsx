@@ -1,17 +1,17 @@
 import { Row, Col } from "antd";
 import { withTranslation } from "react-i18next";
 import { Slide } from "react-awesome-reveal";
-import { ContactProps, ValidationTypeProps } from "../scheduleDisplay/types";
+import { ScheduleInputFormProps, ValidationTypeProps } from "./types";
 import { useForm } from "../../common/utils/useForm";
 import validate from "../../common/utils/validationRules";
 import { Button } from "../../common/Button";
 import Block from "../Block";
 import Input from "../../common/Input";
 import TextArea from "../../common/TextArea";
-import { ScheduleDisplayContainer, FormGroup, Span, ButtonContainer } from "../scheduleDisplay/styles";
+import { ScheduleInputContainer, FormGroup, Span, ButtonContainer } from "./styles";
 import Table from "../../common/Table";
 
-const ScheduleForm = ({ title, content, id, t }: ContactProps) => {
+const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
   const { values, errors, handleChange, handleSubmit } = useForm(validate);
 
   const ValidationType = ({ type }: ValidationTypeProps) => {
@@ -21,7 +21,7 @@ const ScheduleForm = ({ title, content, id, t }: ContactProps) => {
 
   return (
 
-    <ScheduleDisplayContainer id={id}>
+    <ScheduleInputContainer id={id}>
       <Row
         justify="center"
         align="middle"
@@ -102,16 +102,30 @@ const ScheduleForm = ({ title, content, id, t }: ContactProps) => {
                 </Col>
 
                 <Col span={24}>
-                  <ButtonContainer style={{ textAlign: "center" }}>
-                    <Button name="submit">{t("Submit")}</Button>
-                  </ButtonContainer>
+                  <Row gutter={[16, 16]} justify="center" align="middle">
+                    <Col lg={8} md={8} sm={24} xs={24}>
+                      <ButtonContainer style={{ textAlign: "center" }}>
+                        <Button name="submit">{t("新增")}</Button>
+                      </ButtonContainer>
+                    </Col>
+                    <Col lg={8} md={8} sm={24} xs={24}>
+                      <ButtonContainer style={{ textAlign: "center" }}>
+                        <Button name="submit">{t("修改")}</Button>
+                      </ButtonContainer>
+                    </Col>
+                    <Col lg={8} md={8} sm={24} xs={24}>
+                      <ButtonContainer style={{ textAlign: "center" }}>
+                        <Button name="submit">{t("刪除")}</Button>
+                      </ButtonContainer>
+                    </Col>
+                  </Row>
                 </Col>
               </Row>
             </FormGroup>
           </Slide>
         </Col>
       </Row>
-    </ScheduleDisplayContainer>
+    </ScheduleInputContainer>
 
   );
 };

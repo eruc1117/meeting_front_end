@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const ContactContainer = styled("div")`
+export const ScheduleInputContainer = styled("div")`
   padding: 5rem 0;
 
   @media only screen and (max-width: 1024px) {

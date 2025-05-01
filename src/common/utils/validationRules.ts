@@ -1,6 +1,6 @@
-import { validateProps } from "../../common/types";
+import { validateProps, scheduleValProps } from "../../common/types";
 
-export default function validate(values: validateProps) {
+export function validate(values: validateProps) {
   let errors = {} as validateProps;
 
   if (!values.name) {
@@ -13,6 +13,16 @@ export default function validate(values: validateProps) {
   }
   if (!values.message) {
     errors.message = "Message is required";
+  }
+  return errors;
+}
+
+
+export function scheduleVal(values: scheduleValProps) {
+  let errors = {} as scheduleValProps;
+
+  if (!values.eventName && !values.eventID ) {
+    errors.eventName = "填寫事件名稱或 ID";
   }
   return errors;
 }

@@ -1,22 +1,13 @@
 import { useState } from "react";
 import { notification } from "antd";
 
-interface IValues {
-  name: string;
-  email: string;
-  message: string;
-}
-
-const initialValues: IValues = {
-  name: "",
-  email: "",
-  message: "",
-};
-
-export const useForm = (validate: { (values: IValues): IValues }) => {
+export const useForm = <T extends Record<string, any>>(
+  validate: (values: T) => T,
+  initialValues: T
+) => {
   const [formState, setFormState] = useState<{
-    values: IValues;
-    errors: IValues;
+    values: T;
+    errors: T;
   }>({
     values: { ...initialValues },
     errors: { ...initialValues },
@@ -28,7 +19,7 @@ export const useForm = (validate: { (values: IValues): IValues }) => {
     const errors = validate(values);
     setFormState((prevState) => ({ ...prevState, errors }));
 
-    const url = ""; // Fill in your API URL here
+    const url = ""; // Your API URL
 
     try {
       if (Object.values(errors).every((error) => error === "")) {
@@ -43,15 +34,14 @@ export const useForm = (validate: { (values: IValues): IValues }) => {
         if (!response.ok) {
           notification["error"]({
             message: "Error",
-            description:
-              "There was an error sending your message, please try again later.",
+            description: "There was an error sending your message.",
           });
         } else {
           event.target.reset();
-          setFormState(() => ({
+          setFormState({
             values: { ...initialValues },
             errors: { ...initialValues },
-          }));
+          });
 
           notification["success"]({
             message: "Success",

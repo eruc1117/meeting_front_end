@@ -1,20 +1,31 @@
 import { Row, Col } from "antd";
 import { withTranslation } from "react-i18next";
 import { Slide } from "react-awesome-reveal";
-import { ScheduleInputFormProps, ValidationTypeProps } from "./types";
+import { ScheduleInputFormProps, ScheduleInputTypeProps } from "./types";
 import { useForm } from "../../common/utils/useForm";
-import validate from "../../common/utils/validationRules";
+import { scheduleVal } from "../../common/utils/validationRules";
+import { scheduleValProps } from "../../common/types"
 import { Button } from "../../common/Button";
 import Block from "../Block";
 import Input from "../../common/Input";
 import TextArea from "../../common/TextArea";
 import { ScheduleInputContainer, FormGroup, Span, ButtonContainer } from "./styles";
-import Table from "../../common/Table";
+
+const initialValues: scheduleValProps = {
+  eventID: "",
+  eventName: "",
+  eventStartDate: "",
+  eventStartTime: "",
+  eventEndDate: "",
+  eventEndTime: "",
+  eventContent: ""
+};
+
 
 const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
-  const { values, errors, handleChange, handleSubmit } = useForm(validate);
+  const { values, errors, handleChange, handleSubmit } = useForm(scheduleVal, initialValues);
 
-  const ValidationType = ({ type }: ValidationTypeProps) => {
+  const ValidationType = ({ type }: ScheduleInputTypeProps) => {
     const ErrorMessage = errors[type as keyof typeof errors];
     return <Span>{ErrorMessage}</Span>;
   };
@@ -37,12 +48,34 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
           <Slide direction="right" triggerOnce>
             <FormGroup autoComplete="off" onSubmit={handleSubmit} style={{ width: "100%" }}>
               <Row gutter={[16, 16]} justify="center" align="middle">
+
                 <Col xs={24} sm={12}>
                   <Input
                     type="text"
-                    name="name"
-                    placeholder="Your Name"
-                    value={values.name || ""}
+                    name="活動 ID"
+                    placeholder="Event ID"
+                    value={values.eventID || ""}
+                    onChange={handleChange}
+                  />
+                  <ValidationType type="email" />
+                </Col>
+
+                <Col xs={24} sm={12}>
+                  <Input
+                    type="text"
+                    name="活動名稱"
+                    placeholder="Event Name"
+                    value={values.eventName || ""}
+                    onChange={handleChange}
+                  />
+                  <ValidationType type="email" />
+                </Col>
+                <Col xs={24} sm={12}>
+                  <Input
+                    type="date"
+                    name="活動開始日期"
+                    placeholder=""
+                    value={values.eventStartDate || ""}
                     onChange={handleChange}
                   />
                   <ValidationType type="name" />
@@ -50,20 +83,21 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
 
                 <Col xs={24} sm={12}>
                   <Input
-                    type="text"
-                    name="email"
-                    placeholder="Your Email"
-                    value={values.email || ""}
+                    type="time"
+                    name="活動開始時間"
+                    placeholder=""
+                    value={values.eventStartTime || ""}
                     onChange={handleChange}
                   />
                   <ValidationType type="email" />
                 </Col>
+
                 <Col xs={24} sm={12}>
                   <Input
-                    type="text"
-                    name="name"
-                    placeholder="Your Name"
-                    value={values.name || ""}
+                    type="date"
+                    name="活動結束日期"
+                    placeholder=""
+                    value={values.eventEndDate || ""}
                     onChange={handleChange}
                   />
                   <ValidationType type="name" />
@@ -71,35 +105,27 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
 
                 <Col xs={24} sm={12}>
                   <Input
-                    type="text"
-                    name="email"
-                    placeholder="Your Email"
-                    value={values.email || ""}
+                    type="time"
+                    name="活動結束時間"
+                    placeholder=""
+                    value={values.eventEndTime || ""}
                     onChange={handleChange}
                   />
                   <ValidationType type="email" />
-                </Col>
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="text"
-                    name="name"
-                    placeholder="Your Name"
-                    value={values.name || ""}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="name" />
                 </Col>
 
                 <Col xs={24} sm={12}>
                   <Input
-                    type="text"
-                    name="email"
-                    placeholder="Your Email"
-                    value={values.email || ""}
+                    type="time"
+                    name="活動內容"
+                    placeholder=""
+                    value={values.eventContent || ""}
                     onChange={handleChange}
                   />
                   <ValidationType type="email" />
                 </Col>
+                
+
 
                 <Col span={24}>
                   <Row gutter={[16, 16]} justify="center" align="middle">

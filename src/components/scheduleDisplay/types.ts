@@ -3,6 +3,6 @@ export interface ScheduleDisPlayProps {
   t: TFunction;
 }
 
-export interface ValidationTypeProps {
+export interface ScheduleInputTypeProps {
   type: string;
 }

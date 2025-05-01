@@ -35,3 +35,13 @@ export interface validateProps {
   message: string;
   email: string;
 }
+
+export interface scheduleValProps {
+  eventID? : string;
+  eventName : string;
+  eventStartDate? : string;
+  eventStartTime? : string;
+  eventEndDate? : string;
+  eventEndTime? : string;
+  eventContent? : string;
+}

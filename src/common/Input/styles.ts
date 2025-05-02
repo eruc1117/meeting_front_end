@@ -6,6 +6,8 @@ export const Container = styled("div")`
   padding: 10px 5px;
 `;
 
-export const StyledInput = styled("input")`
+export const StyledInput = styled.input.attrs(props => ({
+  type: props.type || "text", // 預設為 text
+}))`
   font-size: 0.875rem;
-`;
+`

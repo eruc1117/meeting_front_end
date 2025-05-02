@@ -116,7 +116,7 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
 
                 <Col xs={24} sm={12}>
                   <Input
-                    type="time"
+                    type="text"
                     name="活動內容"
                     placeholder=""
                     value={values.eventContent || ""}

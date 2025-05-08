@@ -7,6 +7,7 @@ const LoginBlock = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: "",
+    ID: "",
     username: "",
     password: "",
   });
@@ -31,12 +32,21 @@ const LoginBlock = () => {
           <Title>{isLogin ? "登入" : "註冊"}</Title>
 
           {!isLogin && (
-            <StyledInput
-              placeholder="信箱"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-            />
+            <>
+              <StyledInput
+                placeholder="信箱"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+              />
+              <StyledInput
+                placeholder="ID"
+                name="ID"
+                value={formData.ID}
+                onChange={handleChange}
+              />
+            </>
+
           )}
 
           <StyledInput

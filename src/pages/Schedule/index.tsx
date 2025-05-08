@@ -12,7 +12,7 @@ const ScheduleDisplay = lazy(() => import("../../components/scheduleDisplay"));
 
 
 
-const Home = () => {
+const Schedule = () => {
   return (
     <Container>
       <ScrollToTop />
@@ -25,4 +25,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Schedule;

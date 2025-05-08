@@ -10,7 +10,7 @@ const ScrollToTop = lazy(() => import("../../common/ScrollToTop"));
 
 
 
-const Home = () => {
+const Chat = () => {
   return (
     <Container>
       <ChatBlock/>
@@ -18,4 +18,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Chat;

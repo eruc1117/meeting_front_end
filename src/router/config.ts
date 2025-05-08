@@ -13,6 +13,11 @@ const routes = [
     path: ["/chat"],
     exact: true,
     component: "Chat",
+  },  
+  {
+    path: ["/login"],
+    exact: true,
+    component: "Login",
   },
 ];
 

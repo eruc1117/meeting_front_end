@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Row, Col, Drawer } from "antd";
 import { withTranslation, TFunction } from "react-i18next";
 import Container from "../../common/Container";
@@ -15,9 +15,12 @@ import {
   Outline,
   Span,
 } from "./styles";
+import { AuthContext } from "../../contexts/AuthContext";
+
 
 const Header = ({ t }: { t: TFunction }) => {
   const [visible, setVisibility] = useState(false);
+  const { isLoggedIn, user, logout } = useContext(AuthContext);
 
   const toggleButton = () => {
     setVisibility(!visible);
@@ -44,7 +47,19 @@ const Header = ({ t }: { t: TFunction }) => {
           as="a" href="/login"
         >
           <Span>
-            <Button>{t("Login")}</Button>
+          {isLoggedIn ? (
+          <CustomNavLinkSmall style={{ width: "80px" }} as="a" href="/">
+            <Span>
+              <Button onClick={logout}>{t("登出")}</Button>
+            </Span>
+          </CustomNavLinkSmall>
+        ) : (
+          <CustomNavLinkSmall style={{ width: "80px" }} as="a" href="/login">
+            <Span>
+              <Button>{t("登入")}</Button>
+            </Span>
+          </CustomNavLinkSmall>
+        )}
           </Span>
         </CustomNavLinkSmall>
       </>

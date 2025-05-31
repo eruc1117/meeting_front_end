@@ -1,9 +1,13 @@
 import { withTranslation, TFunction } from "react-i18next";
-import React, { useState } from "react";
+import React, { useState, useContext  } from "react";
+import { AuthContext } from "../../contexts/AuthContext";
 import { LoginContainer, StyledRow, FormWrapper, Title, StyledInput, StyledButton, SwitchText, SwitchLink } from "./styles";
+import { useHistory } from "react-router-dom";
 
 
 const LoginBlock = () => {
+  const history = useHistory();
+  const { isLoggedIn, login, logout } = useContext(AuthContext);
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: "",
@@ -17,13 +21,49 @@ const LoginBlock = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = () => {
-    if (isLogin) {
-      console.log("Login with:", formData.username, formData.password);
-    } else {
-      console.log("Register with:", formData);
+  const handleSubmit = async () => {
+    try {
+      const url = isLogin ? "http://localhost:4000/api/auth/login" : "http://localhost:4000/api/auth/register";
+      const payload = isLogin
+        ? {
+          account: formData.username,
+          password: formData.password,
+        }
+        : {
+          email: formData.email,
+          username: formData.username,
+          account: formData.ID,
+          password: formData.password,
+          passwordChk: formData.password, // 若你有確認欄位也可以做驗證
+        };
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(`錯誤：${data.message}`);
+        return;
+      }
+
+      login(data.data.token, data.data.user);
+      
+      history.push("/home"); // 你要跳轉的頁面，例如 / 或 /dashboard
+
+      // 可選擇儲存 token 或導頁
+      // localStorage.setItem("token", data.data.token);
+      // navigate("/home");
+
+    } catch (err) {
+      console.error("API 錯誤:", err);
+      alert("伺服器錯誤，請稍後再試。");
     }
   };
+
 
   return (
     <LoginContainer>

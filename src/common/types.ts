@@ -19,6 +19,7 @@ export interface SvgIconProps {
 }
 
 export interface InputProps {
+  labName: string;
   name: string;
   placeholder: string;
   t: TFunction;

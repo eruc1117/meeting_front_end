@@ -1,5 +1,5 @@
 import { withTranslation } from "react-i18next";
-
+import {useContext  } from "react";
 import { ScheduleDisplayContainer, FormGroup, Span, ButtonContainer } from "./styles";
 import { ScheduleDisPlayProps, ScheduleInputTypeProps } from "./types";
 
@@ -10,10 +10,10 @@ import { useForm } from "../../common/utils/useForm";
 import { scheduleVal } from "../../common/utils/validationRules";
 import { scheduleValProps } from "../../common/types"
 import { Button } from "../../common/Button";
-import Block from "../Block";
 import Input from "../../common/Input";
-import TextArea from "../../common/TextArea";
 import Table from "../../common/Table";
+import { ScheduleContext } from "../../contexts/SechduleContext";
+
 
 const initialValues: scheduleValProps = {
   eventID: "",
@@ -24,16 +24,14 @@ const initialValues: scheduleValProps = {
   eventEndTime: "",
   eventContent: ""
 };
+const columnsTitle = ["Id","活動主旨", "內容", "開始時間", "結束時間"];
+const columns = ["Id", "title", "content", "startTime", "endTime"];
 
-const columns = ["姓名", "信箱", "電話"];
-const data = [
-  { 姓名: "小明", 信箱: "ming@example.com", 電話: "0912-345-678" },
-  { 姓名: "小美", 信箱: "mei@example.com", 電話: "0987-654-321" },
-];
 
 
 const ScheduleDisplay = ({ t }: ScheduleDisPlayProps) => {
   const { values, errors, handleChange, handleSubmit } = useForm(scheduleVal, initialValues);
+    const { tableData, getSchedules } = useContext(ScheduleContext);
 
   const ValidationType = ({ type }: ScheduleInputTypeProps) => {
     const ErrorMessage = errors[type as keyof typeof errors];
@@ -53,7 +51,8 @@ const ScheduleDisplay = ({ t }: ScheduleDisPlayProps) => {
               <Col xs={24} sm={12}>
                 <Input
                   type="text"
-                  name="活動 ID"
+                  labName="活動 ID"
+                  name="eventID"
                   placeholder="Event ID"
                   value={values.eventID || ""}
                   onChange={handleChange}
@@ -64,7 +63,8 @@ const ScheduleDisplay = ({ t }: ScheduleDisPlayProps) => {
               <Col xs={24} sm={12}>
                 <Input
                   type="text"
-                  name="活動名稱"
+                  labName="活動名稱"
+                  name="eventName"
                   placeholder="Event Name"
                   value={values.eventName || ""}
                   onChange={handleChange}
@@ -74,7 +74,8 @@ const ScheduleDisplay = ({ t }: ScheduleDisPlayProps) => {
               <Col xs={24} sm={12}>
                 <Input
                   type="date"
-                  name="活動開始日期"
+                  labName="活動開始日期"
+                  name="eventStartDate"
                   placeholder=""
                   value={values.eventStartDate || ""}
                   onChange={handleChange}
@@ -85,7 +86,8 @@ const ScheduleDisplay = ({ t }: ScheduleDisPlayProps) => {
               <Col xs={24} sm={12}>
                 <Input
                   type="time"
-                  name="活動開始時間"
+                  labName="活動開始時間"
+                  name="eventStartTime"
                   placeholder=""
                   value={values.eventStartTime || ""}
                   onChange={handleChange}
@@ -96,6 +98,7 @@ const ScheduleDisplay = ({ t }: ScheduleDisPlayProps) => {
               <Col xs={24} sm={12}>
                 <Input
                   type="date"
+                  labName="eventEndDate"
                   name="活動結束日期"
                   placeholder=""
                   value={values.eventEndDate || ""}
@@ -107,7 +110,8 @@ const ScheduleDisplay = ({ t }: ScheduleDisPlayProps) => {
               <Col xs={24} sm={12}>
                 <Input
                   type="time"
-                  name="活動結束時間"
+                  name="eventEndDate"
+                  labName="活動結束時間"
                   placeholder=""
                   value={values.eventEndTime || ""}
                   onChange={handleChange}
@@ -118,7 +122,7 @@ const ScheduleDisplay = ({ t }: ScheduleDisPlayProps) => {
                 <Row gutter={[16, 16]} justify="center" align="middle">
                   <Col lg={12} md={12} sm={24} xs={24}>
                     <ButtonContainer style={{ textAlign: "center" }}>
-                      <Button name="submit">{t("查詢事件")}</Button>
+                      <Button onClick={getSchedules}>{t("查詢事件")}</Button>
                     </ButtonContainer>
                   </Col>
                   <Col lg={12} md={12} sm={24} xs={24}>
@@ -132,7 +136,7 @@ const ScheduleDisplay = ({ t }: ScheduleDisPlayProps) => {
           </FormGroup>
         </Slide>
       </Row>
-      <Table columns={columns} data={data} />
+      <Table columnsTitle={columnsTitle} columns={columns} data={tableData} />
     </ScheduleDisplayContainer>
   );
 };

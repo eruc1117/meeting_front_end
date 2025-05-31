@@ -29,6 +29,7 @@ const ChatBlock = () => {
       <FormGroup>
         <Input
           type="text"
+          labName=""
           name=""
           placeholder=""
           value={""}

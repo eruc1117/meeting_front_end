@@ -23,7 +23,7 @@ const LoginBlock = () => {
 
   const handleSubmit = async () => {
     try {
-      const url = isLogin ? "http://localhost:4000/api/auth/login" : "http://localhost:4000/api/auth/register";
+      const url = isLogin ? `${process.env.REACT_APP_BASEURL}/api/auth/login` : `${process.env.REACT_APP_BASEURL}/api/auth/register`;
       const payload = isLogin
         ? {
           account: formData.username,

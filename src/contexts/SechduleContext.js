@@ -19,7 +19,7 @@ export const ScheduleProvider = ({ children }) => {
     const createSchedule = async (scheduleData) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch('http://localhost:4000/api/schedules', {
+            const response = await fetch(`${process.env.REACT_APP_BASEURL}/api/schedules`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -47,7 +47,7 @@ export const ScheduleProvider = ({ children }) => {
     const getSchedules = async () => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch('http://localhost:4000/api/schedules', {
+            const response = await fetch(`${process.env.REACT_APP_BASEURL}/api/schedules`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -87,7 +87,7 @@ export const ScheduleProvider = ({ children }) => {
     const updateSchedule = async (id, scheduleData) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`http://localhost:4000/api/schedules/${id}`, {
+            const response = await fetch(`${process.env.REACT_APP_BASEURL}/api/schedules/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ export const ScheduleProvider = ({ children }) => {
     const deleteSchedule = async (id) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`http://localhost:4000/api/schedules/${id}`, {
+            const response = await fetch(`${process.env.REACT_APP_BASEURL}/api/schedules/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`

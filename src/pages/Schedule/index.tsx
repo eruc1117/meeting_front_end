@@ -1,6 +1,6 @@
 import { lazy } from "react";
 import { ScheduleProvider } from "../../contexts/SechduleContext";
-import ContactContent from "../../content/ContactContent.json";
+import ContactContent from "../../content/Schedule.json";
 
 
 const Container = lazy(() => import("../../common/Container"));

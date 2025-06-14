@@ -33,7 +33,7 @@ const initialValues: scheduleValProps = {
 
 const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
   const { values, errors, handleChange, handleSubmit, setValues } = useForm(scheduleVal, initialValues) as UseFormReturn;
-  const { createSchedule, updateSchedule, deleteSchedule } = useContext(ScheduleContext);
+  const { createSchedule, updateSchedule, deleteSchedule, getSchedules } = useContext(ScheduleContext);
   const { user } = useContext(AuthContext);
 
   const ValidationType = ({ type }: ScheduleInputTypeProps) => {
@@ -99,9 +99,9 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
                 <Col xs={24} sm={12}>
                   <Input
                     type="text"
-                    name="eventID"
-                    labName="活動 ID"
-                    placeholder="Event ID"
+                    name="group"
+                    labName="群組"
+                    placeholder="Group"
                     value={values.eventID}
                     onChange={handleChange}
                   />
@@ -111,14 +111,17 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
                 <Col xs={24} sm={12}>
                   <Input
                     type="text"
-                    name="eventName"
-                    labName="活動名稱"
-                    placeholder="Event Name"
-                    value={values.eventName}
+                    name="member"
+                    labName="成員"
+                    placeholder="Member"
+                    value={values.eventID}
                     onChange={handleChange}
                   />
-                  <ValidationType type="eventName" />
+                  <ValidationType type="eventID" />
                 </Col>
+
+
+
 
                 <Col xs={24} sm={12}>
                   <Input
@@ -171,9 +174,33 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
                 <Col xs={24} sm={12}>
                   <Input
                     type="text"
+                    name="eventName"
+                    labName="活動名稱"
+                    placeholder="Event Name"
+                    value={values.eventName}
+                    onChange={handleChange}
+                  />
+                  <ValidationType type="eventName" />
+                </Col>
+
+                <Col xs={24} sm={12}>
+                  <Input
+                    type="text"
                     name="eventContent"
                     labName="活動內容"
                     placeholder="Event Content"
+                    value={values.eventContent}
+                    onChange={handleChange}
+                  />
+                  <ValidationType type="eventContent" />
+                </Col>
+
+                <Col xs={24} sm={12}>
+                  <Input
+                    type="text"
+                    name="eventPlace"
+                    labName="活動地點"
+                    placeholder="Event Place"
                     value={values.eventContent}
                     onChange={handleChange}
                   />
@@ -196,6 +223,22 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
                       <ButtonContainer style={{ textAlign: "center" }}>
                         <Button onClick={handleDeleteSchedule}>{t("刪除")}</Button>
                       </ButtonContainer>
+                    </Col>
+                  </Row>
+                  <Row gutter={[16, 16]} justify="center" align="middle">
+                    <Col span={24}>
+                      <Row gutter={[16, 16]} justify="center" align="middle">
+                        <Col lg={12} md={12} sm={24} xs={24}>
+                          <ButtonContainer style={{ textAlign: "center" }}>
+                            <Button onClick={getSchedules}>{t("查詢事件")}</Button>
+                          </ButtonContainer>
+                        </Col>
+                        <Col lg={12} md={12} sm={24} xs={24}>
+                          <ButtonContainer style={{ textAlign: "center" }}>
+                            <Button name="submit">{t("查詢空閒")}</Button>
+                          </ButtonContainer>
+                        </Col>
+                      </Row>
                     </Col>
                   </Row>
                 </Col>

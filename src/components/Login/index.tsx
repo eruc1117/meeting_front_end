@@ -1,19 +1,21 @@
-import { withTranslation, TFunction } from "react-i18next";
-import React, { useState, useContext  } from "react";
+import { withTranslation } from "react-i18next";
+import React, { useState, useContext } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
 import { LoginContainer, StyledRow, FormWrapper, Title, StyledInput, StyledButton, SwitchText, SwitchLink } from "./styles";
 import { useHistory } from "react-router-dom";
 
+const BASE_URL = process.env.REACT_APP_BASEURL;
 
 const LoginBlock = () => {
   const history = useHistory();
-  const { isLoggedIn, login, logout } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: "",
-    ID: "",
+    account: "",
     username: "",
     password: "",
+    passwordChk: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,20 +24,28 @@ const LoginBlock = () => {
   };
 
   const handleSubmit = async () => {
+    if (!isLogin && formData.password !== formData.passwordChk) {
+      alert("密碼和確認密碼不同");
+      return;
+    }
+
     try {
-      const url = isLogin ? `${process.env.REACT_APP_BASEURL}/api/auth/login` : `${process.env.REACT_APP_BASEURL}/api/auth/register`;
+      const url = isLogin
+        ? `${BASE_URL}/api/auth/login`
+        : `${BASE_URL}/api/auth/register`;
+
       const payload = isLogin
         ? {
-          account: formData.username,
-          password: formData.password,
-        }
+            account: formData.account,
+            password: formData.password,
+          }
         : {
-          email: formData.email,
-          username: formData.username,
-          account: formData.ID,
-          password: formData.password,
-          passwordChk: formData.password, // 若你有確認欄位也可以做驗證
-        };
+            email: formData.email,
+            username: formData.username,
+            account: formData.account,
+            password: formData.password,
+            passwordChk: formData.passwordChk,
+          };
 
       const res = await fetch(url, {
         method: "POST",
@@ -51,12 +61,7 @@ const LoginBlock = () => {
       }
 
       login(data.data.token, data.data.user);
-      
-      history.push("/home"); // 你要跳轉的頁面，例如 / 或 /dashboard
-
-      // 可選擇儲存 token 或導頁
-      // localStorage.setItem("token", data.data.token);
-      // navigate("/home");
+      history.push("/home");
 
     } catch (err) {
       console.error("API 錯誤:", err);
@@ -64,6 +69,10 @@ const LoginBlock = () => {
     }
   };
 
+  const handleSwitch = () => {
+    setIsLogin(!isLogin);
+    setFormData({ email: "", account: "", username: "", password: "", passwordChk: "" });
+  };
 
   return (
     <LoginContainer>
@@ -80,19 +89,18 @@ const LoginBlock = () => {
                 onChange={handleChange}
               />
               <StyledInput
-                placeholder="ID"
-                name="ID"
-                value={formData.ID}
+                placeholder="使用者名稱"
+                name="username"
+                value={formData.username}
                 onChange={handleChange}
               />
             </>
-
           )}
 
           <StyledInput
             placeholder="帳號"
-            name="username"
-            value={formData.username}
+            name="account"
+            value={formData.account}
             onChange={handleChange}
           />
 
@@ -103,13 +111,22 @@ const LoginBlock = () => {
             onChange={handleChange}
           />
 
+          {!isLogin && (
+            <StyledInput.Password
+              placeholder="確認密碼"
+              name="passwordChk"
+              value={formData.passwordChk}
+              onChange={handleChange}
+            />
+          )}
+
           <StyledButton type="primary" onClick={handleSubmit}>
             {isLogin ? "登入" : "註冊"}
           </StyledButton>
 
           <SwitchText>
             {isLogin ? "沒有帳號？" : "已有帳號？"}{" "}
-            <SwitchLink onClick={() => setIsLogin(!isLogin)}>
+            <SwitchLink onClick={handleSwitch}>
               {isLogin ? "註冊" : "登入"}
             </SwitchLink>
           </SwitchText>

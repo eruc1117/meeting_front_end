@@ -120,9 +120,6 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
                   <ValidationType type="eventID" />
                 </Col>
 
-
-
-
                 <Col xs={24} sm={12}>
                   <Input
                     type="date"
@@ -206,6 +203,20 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
                   />
                   <ValidationType type="eventContent" />
                 </Col>
+
+                <Col xs={24} sm={12}>
+                  <Input
+                    type="text"
+                    name="eventPublic"
+                    labName="是否公開"
+                    placeholder=""
+                    value={values.eventContent}
+                    onChange={handleChange}
+                  />
+                  <ValidationType type="eventContent" />
+                </Col>
+
+
 
                 <Col span={24}>
                   <Row gutter={[16, 16]} justify="center" align="middle">

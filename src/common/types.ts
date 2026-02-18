@@ -38,11 +38,29 @@ export interface validateProps {
 }
 
 export interface scheduleValProps {
-  eventID? : string;
-  eventName : string;
-  eventStartDate? : string;
-  eventStartTime? : string;
-  eventEndDate? : string;
-  eventEndTime? : string;
-  eventContent? : string;
+  eventID: string;
+  eventName: string;
+  eventStartDate: string;
+  eventStartTime: string;
+  eventEndDate: string;
+  eventEndTime: string;
+  eventContent: string;
+}
+
+
+export interface userValProps {
+  account: string;
+  name: string;
+  group: string;
+}
+
+
+export interface scheduleValProps {
+  eventID: string;
+  eventName: string;
+  eventStartDate: string;
+  eventStartTime: string;
+  eventEndDate: string;
+  eventEndTime: string;
+  eventContent: string;
 }

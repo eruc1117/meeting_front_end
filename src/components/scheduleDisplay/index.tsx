@@ -24,8 +24,8 @@ const initialValues: scheduleValProps = {
   eventEndTime: "",
   eventContent: ""
 };
-const columnsTitle = ["日期","活動主旨", "內容", "時間", "地點"];
-const columns = ["date", "title", "content", "Time", "place"];
+const columnsTitle = ["日期","活動主旨", "內容", "時間", "地點", "報名"];
+const columns = ["date", "title", "content", "Time", "place", "attend"];
 
 
 

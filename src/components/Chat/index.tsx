@@ -1,8 +1,11 @@
+import { Row, Col, Table } from "antd";
 import { withTranslation, TFunction } from "react-i18next";
 import React, { useState } from "react";
+import { Slide } from "react-awesome-reveal";
 import { MetaData, ChatContainer, Messages, Message, FormGroup, ButtonContainer, Sender, Time, Bubble } from "./styles";
 import Input from "../../common/Input";
 import { Button } from "../../common/Button";
+import Block from "../Block";
 
 const messages = [
   { idx: 1, msg: "Hello!", sender: "Alice", time: "10:01", isSelf: false },
@@ -41,7 +44,7 @@ const ChatBlock = () => {
           <Button name="submit">{("送出")}</Button>
         </ButtonContainer>
       </FormGroup>
-    </ChatContainer>
+    </ChatContainer >
   );
 };
 

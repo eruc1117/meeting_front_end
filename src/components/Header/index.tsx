@@ -42,24 +42,27 @@ const Header = ({ t }: { t: TFunction }) => {
         <CustomNavLinkSmall as="a" href="/chat">
           <Span>{t("Chat")}</Span>
         </CustomNavLinkSmall>
+        <CustomNavLinkSmall as="a" href="/user" >
+          <Span>{t("User")}</Span>
+        </CustomNavLinkSmall>
         <CustomNavLinkSmall
           style={{ width: "80px" }}
           as="a" href="/login"
         >
           <Span>
-          {isLoggedIn ? (
-          <CustomNavLinkSmall style={{ width: "80px" }} as="a" href="/">
-            <Span>
-              <Button onClick={logout}>{t("登出")}</Button>
-            </Span>
-          </CustomNavLinkSmall>
-        ) : (
-          <CustomNavLinkSmall style={{ width: "80px" }} as="a" href="/login">
-            <Span>
-              <Button>{t("登入")}</Button>
-            </Span>
-          </CustomNavLinkSmall>
-        )}
+            {isLoggedIn ? (
+              <CustomNavLinkSmall style={{ width: "80px" }} as="a" href="/">
+                <Span>
+                  <Button onClick={logout}>{t("登出")}</Button>
+                </Span>
+              </CustomNavLinkSmall>
+            ) : (
+              <CustomNavLinkSmall style={{ width: "80px" }} as="a" href="/login">
+                <Span>
+                  <Button>{t("登入")}</Button>
+                </Span>
+              </CustomNavLinkSmall>
+            )}
           </Span>
         </CustomNavLinkSmall>
       </>

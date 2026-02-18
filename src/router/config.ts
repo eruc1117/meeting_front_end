@@ -10,6 +10,11 @@ const routes = [
     component: "Schedule",
   },
   {
+    path: ["/user"],
+    exact: true,
+    component: "User",
+  },
+  {
     path: ["/chat"],
     exact: true,
     component: "Chat",

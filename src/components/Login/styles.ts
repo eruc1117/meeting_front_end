@@ -24,7 +24,24 @@ export const FormWrapper = styled.div`
 `;
 
 export const Title = styled.h2`
-  margin-bottom: 24px;
+  margin-bottom: 8px;
+`;
+
+export const ErrorMsg = styled.p`
+  color: rgb(255, 130, 92);
+  font-size: 13px;
+  margin-bottom: 16px;
+  min-height: 20px;
+`;
+
+export const ErrorText = styled.span`
+  display: block;
+  color: rgb(255, 130, 92);
+  font-size: 12px;
+  margin-top: -12px;
+  margin-bottom: 8px;
+  padding-left: 4px;
+  min-height: 16px;
 `;
 
 export const StyledInput = styled(Input)`

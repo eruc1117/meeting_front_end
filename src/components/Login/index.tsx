@@ -1,10 +1,18 @@
 import { withTranslation } from "react-i18next";
 import React, { useState, useContext } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
-import { LoginContainer, StyledRow, FormWrapper, Title, StyledInput, StyledButton, SwitchText, SwitchLink } from "./styles";
+import { LoginContainer, StyledRow, FormWrapper, Title, ErrorMsg, ErrorText, StyledInput, StyledButton, SwitchText, SwitchLink } from "./styles";
 import { useHistory } from "react-router-dom";
 
 const BASE_URL = process.env.REACT_APP_BASEURL;
+
+const ERROR_FIELD_MAP: Record<string, string> = {
+  E001_USER_EXISTS: "account",
+  E002_INVALID_EMAIL: "email",
+  E009_PASSWORD_NOT_SAME: "passwordChk",
+  E008_ACCOUNT_NOT_EXIST: "account",
+  E003_INVALID_CREDENTIALS: "password",
+};
 
 const LoginBlock = () => {
   const history = useHistory();
@@ -17,15 +25,22 @@ const LoginBlock = () => {
     password: "",
     passwordChk: "",
   });
+  const [errorMsg, setErrorMsg] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setFieldErrors((prev) => ({ ...prev, [name]: "" }));
+    setErrorMsg("");
   };
 
   const handleSubmit = async () => {
+    setErrorMsg("");
+    setFieldErrors({});
+
     if (!isLogin && formData.password !== formData.passwordChk) {
-      alert("密碼和確認密碼不同");
+      setFieldErrors({ passwordChk: "密碼和確認密碼不同" });
       return;
     }
 
@@ -56,7 +71,13 @@ const LoginBlock = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(`錯誤：${data.message}`);
+        const errorCode = data.error?.code ?? "";
+        const targetField = ERROR_FIELD_MAP[errorCode];
+        if (targetField) {
+          setFieldErrors({ [targetField]: data.message });
+        } else {
+          setErrorMsg(data.message);
+        }
         return;
       }
 
@@ -65,13 +86,15 @@ const LoginBlock = () => {
 
     } catch (err) {
       console.error("API 錯誤:", err);
-      alert("伺服器錯誤，請稍後再試。");
+      setErrorMsg("伺服器錯誤，請稍後再試。");
     }
   };
 
   const handleSwitch = () => {
     setIsLogin(!isLogin);
     setFormData({ email: "", account: "", username: "", password: "", passwordChk: "" });
+    setErrorMsg("");
+    setFieldErrors({});
   };
 
   return (
@@ -79,6 +102,7 @@ const LoginBlock = () => {
       <StyledRow justify="center">
         <FormWrapper>
           <Title>{isLogin ? "登入" : "註冊"}</Title>
+          <ErrorMsg>{errorMsg}</ErrorMsg>
 
           {!isLogin && (
             <>
@@ -87,7 +111,10 @@ const LoginBlock = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
+                status={fieldErrors.email ? "error" : ""}
               />
+              <ErrorText>{fieldErrors.email}</ErrorText>
+
               <StyledInput
                 placeholder="使用者名稱"
                 name="username"
@@ -102,22 +129,30 @@ const LoginBlock = () => {
             name="account"
             value={formData.account}
             onChange={handleChange}
+            status={fieldErrors.account ? "error" : ""}
           />
+          <ErrorText>{fieldErrors.account}</ErrorText>
 
           <StyledInput.Password
             placeholder="密碼"
             name="password"
             value={formData.password}
             onChange={handleChange}
+            status={fieldErrors.password ? "error" : ""}
           />
+          <ErrorText>{fieldErrors.password}</ErrorText>
 
           {!isLogin && (
-            <StyledInput.Password
-              placeholder="確認密碼"
-              name="passwordChk"
-              value={formData.passwordChk}
-              onChange={handleChange}
-            />
+            <>
+              <StyledInput.Password
+                placeholder="確認密碼"
+                name="passwordChk"
+                value={formData.passwordChk}
+                onChange={handleChange}
+                status={fieldErrors.passwordChk ? "error" : ""}
+              />
+              <ErrorText>{fieldErrors.passwordChk}</ErrorText>
+            </>
           )}
 
           <StyledButton type="primary" onClick={handleSubmit}>

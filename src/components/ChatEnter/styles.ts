@@ -1,5 +1,5 @@
-import { Row } from "antd";
 import styled from "styled-components";
+export { FormGroup, ButtonContainer } from "../../common/styles";
 
 export const ChatContainer = styled("div")`
   width: 100%;
@@ -19,7 +19,6 @@ export const ChatContainer = styled("div")`
   }
 `;
 
-
 export const Messages = styled("div")`
   flex: 1;
   width: 100%;
@@ -29,7 +28,6 @@ export const Messages = styled("div")`
   background: #f0f2f5;
   border-radius: 8px;
 `;
-
 
 export const Message = styled.div<{ isSelf: boolean }>`
   display: flex;
@@ -63,26 +61,4 @@ export const Bubble = styled.div<{ isSelf: boolean }>`
   max-width: 80%;
   word-wrap: break-word;
   align-self: ${({ isSelf }) => (isSelf ? "flex-end" : "flex-start")};
-`;
-
-
-
-
-export const FormGroup = styled("form")`
-  width: 100%;
-  max-width: 520px;
-
-  @media only screen and (max-width: 1045px) {
-    max-width: 100%;
-    margin-top: 2rem;
-  }
-`;
-
-export const ButtonContainer = styled("div")`
-  text-align: end;
-  position: relative;
-
-  @media only screen and (max-width: 414px) {
-    padding-top: 0.75rem;
-  }
 `;

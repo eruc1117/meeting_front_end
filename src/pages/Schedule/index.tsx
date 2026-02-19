@@ -20,7 +20,6 @@ const Schedule = () => {
           title={ContactContent.title}
           content={ContactContent.text}
           id="contact" />
-        <ScheduleDisplay />
       </ScheduleProvider>
     </Container>
   );

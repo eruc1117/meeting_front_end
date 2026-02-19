@@ -12,6 +12,7 @@ import { ScheduleInputContainer, FormGroup, Span, ButtonContainer } from "./styl
 import { useContext } from "react";
 import { ScheduleContext } from "../../contexts/SechduleContext";
 import { AuthContext } from "../../contexts/AuthContext";
+import Calendar from "../Calendar";
 
 interface UseFormReturn {
   values: scheduleValProps;
@@ -90,6 +91,10 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
           <Slide direction="left" triggerOnce>
             <Block title={title} content={content} />
           </Slide>
+        </Col>
+
+        <Col lg={24} md={24} sm={24} xs={24} style={{ display: "flex", justifyContent: "center" }}>
+          <Calendar />
         </Col>
 
         <Col lg={12} md={12} sm={24} xs={24}>

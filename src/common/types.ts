@@ -9,6 +9,7 @@ export interface ButtonProps {
   strColor?: string;
   bgColor?: string;
   name?: string;
+  type?: "button" | "submit" | "reset";
   children: React.ReactNode;
   onClick?: () => void;
 }
@@ -51,8 +52,9 @@ export interface scheduleValProps {
 
 export interface userValProps {
   account: string;
-  name: string;
-  group: string;
+  password: string;
+  nickname: string;
+  email: string;
 }
 
 export interface FormContainerProps {

@@ -50,19 +50,19 @@ export function scheduleVal(values: scheduleValProps) {
 export function userVal(values: userValProps) {
   let errors = {} as userValProps;
 
-
-  //   account: string;
-  // name: string;
-  // group: str
-
   if (!values.account) {
-    errors.account = "活動 ID 為必填欄位";
+    errors.account = "帳號為必填欄位";
   }
-  if (!values.name) {
-    errors.name = "活動名稱為必填欄位";
+  if (!values.password) {
+    errors.password = "密碼為必填欄位";
   }
-  if (!values.group) {
-    errors.group = "開始日期為必填欄位";
+  if (!values.nickname) {
+    errors.nickname = "暱稱為必填欄位";
+  }
+  if (!values.email) {
+    errors.email = "信箱為必填欄位";
+  } else if (!/\S+@\S+\.\S+/.test(values.email)) {
+    errors.email = "信箱格式不正確";
   }
   return errors;
 }

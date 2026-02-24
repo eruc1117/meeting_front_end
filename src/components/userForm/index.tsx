@@ -13,6 +13,8 @@ import { useContext, useState } from "react";
 import { UserContext } from "../../contexts/UserContext";
 import { AuthContext } from "../../contexts/AuthContext";
 
+const BASE_URL = process.env.REACT_APP_BASEURL;
+
 interface UseFormReturn {
   values: userValProps;
   errors: userValProps;
@@ -32,33 +34,74 @@ const UserForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
   const { values, errors, handleChange, handleSubmit, setValues } = useForm(userVal, initialValues) as UseFormReturn;
   const { createSchedule, updateSchedule, deleteSchedule, getSchedules } = useContext(UserContext);
   const { user } = useContext(AuthContext);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showPasswordFields, setShowPasswordFields] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [newPasswordError, setNewPasswordError] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
+  const [apiMessage, setApiMessage] = useState("");
 
   const ValidationType = ({ type }: ScheduleInputTypeProps) => {
     const ErrorMessage = errors[type as keyof typeof errors];
     return <Span>{ErrorMessage}</Span>;
   };
 
-  const handleConfirmPassword = () => {
+  const handleConfirmPassword = async () => {
+    let hasError = false;
+
+    if (!newPassword) {
+      setNewPasswordError("新密碼為必填欄位");
+      hasError = true;
+    } else {
+      setNewPasswordError("");
+    }
+
     if (!confirmPassword) {
       setConfirmPasswordError("確認密碼為必填欄位");
-      return;
-    }
-    if (values.password !== confirmPassword) {
+      hasError = true;
+    } else if (newPassword !== confirmPassword) {
       setConfirmPasswordError("密碼與確認密碼不符");
-      return;
+      hasError = true;
+    } else {
+      setConfirmPasswordError("");
     }
-    setConfirmPasswordError("");
-    setShowConfirmPassword(false);
-    setConfirmPassword("");
+
+    if (hasError) return;
+
+    try {
+      const res = await fetch(`${BASE_URL}/api/auth/updatePassword`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          account: values.account,
+          oirPassword: values.password,
+          newPassword: confirmPassword,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setApiMessage(data.message || "更新失敗，請稍後再試。");
+        return;
+      }
+
+      setApiMessage("更新成功");
+      setShowPasswordFields(false);
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      setApiMessage("伺服器錯誤，請稍後再試。");
+    }
   };
 
   const handleCancelPassword = () => {
-    setShowConfirmPassword(false);
+    setShowPasswordFields(false);
+    setNewPassword("");
+    setNewPasswordError("");
     setConfirmPassword("");
     setConfirmPasswordError("");
+    setApiMessage("");
   };
 
 
@@ -87,43 +130,60 @@ const UserForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
                   <ValidationType type="account" />
                 </Col>
 
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="password"
-                    name="password"
-                    labName="密碼"
-                    placeholder="Password"
-                    value={values.password}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="password" />
-                </Col>
+                {showPasswordFields && (
+                  <>
+                    <Col xs={24} sm={12}>
+                      <Input
+                        type="password"
+                        name="password"
+                        labName="舊密碼"
+                        placeholder="Old Password"
+                        value={values.password}
+                        onChange={handleChange}
+                      />
+                      <ValidationType type="password" />
+                    </Col>
 
-                {showConfirmPassword && (
-                  <Col xs={24} sm={12}>
-                    <Input
-                      type="password"
-                      name="confirmPassword"
-                      labName="確認密碼"
-                      placeholder="Confirm Password"
-                      value={confirmPassword}
-                      onChange={(e) => { setConfirmPassword((e.target as HTMLInputElement).value); setConfirmPasswordError(""); }}
-                    />
-                    {confirmPasswordError && <Span>{confirmPasswordError}</Span>}
-                  </Col>
+                    <Col xs={24} sm={12}>
+                      <Input
+                        type="password"
+                        name="newPassword"
+                        labName="新密碼"
+                        placeholder="New Password"
+                        value={newPassword}
+                        onChange={(e) => { setNewPassword((e.target as HTMLInputElement).value); setNewPasswordError(""); }}
+                      />
+                      {newPasswordError && <Span>{newPasswordError}</Span>}
+                    </Col>
+
+                    <Col xs={24} sm={12}>
+                      <Input
+                        type="password"
+                        name="confirmPassword"
+                        labName="確認密碼"
+                        placeholder="Confirm Password"
+                        value={confirmPassword}
+                        onChange={(e) => { setConfirmPassword((e.target as HTMLInputElement).value); setConfirmPasswordError(""); }}
+                      />
+                      {confirmPasswordError && <Span>{confirmPasswordError}</Span>}
+                    </Col>
+
+                    <Col xs={24} sm={12} />
+                  </>
                 )}
 
                 <Col xs={24} sm={24}>
                   <ButtonContainer style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "1rem" }}>
-                    {showConfirmPassword ? (
+                    {showPasswordFields ? (
                       <>
                         <Button type="button" onClick={handleConfirmPassword}>{t("確認")}</Button>
                         <Button type="button" onClick={handleCancelPassword}>{t("取消")}</Button>
                       </>
                     ) : (
-                      <Button type="button" onClick={() => setShowConfirmPassword(true)}>{t("修改密碼")}</Button>
+                      <Button type="button" onClick={() => setShowPasswordFields(true)}>{t("修改密碼")}</Button>
                     )}
                   </ButtonContainer>
+                  {apiMessage && <Span style={{ display: "block", textAlign: "center", marginTop: "0.5rem" }}>{apiMessage}</Span>}
                 </Col>
 
                 <Col xs={24} sm={12}>

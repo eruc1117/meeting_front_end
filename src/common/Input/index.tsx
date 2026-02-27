@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { withTranslation } from "react-i18next";
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
-import { Container, InputWrapper, StyledInput, ToggleButton } from "./styles";
-import { Label } from "../TextArea/styles";
+import { Container, InputWrapper, StyledInput, ToggleButton, InputLabel } from "./styles";
 import { InputProps } from "../types";
 
 const Input = ({ labName, name, type, placeholder, value, onChange, t }: InputProps) => {
@@ -11,7 +10,7 @@ const Input = ({ labName, name, type, placeholder, value, onChange, t }: InputPr
 
   return (
     <Container>
-      <Label htmlFor={name}>{t(labName)}</Label>
+      <InputLabel htmlFor={name}>{t(labName)}</InputLabel>
       <InputWrapper>
         <StyledInput
           placeholder={t(placeholder)}

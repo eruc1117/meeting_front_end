@@ -1,14 +1,24 @@
 import styled from "styled-components";
 
 export const Container = styled("div")`
-  display: inline-block;
+  display: flex;
+  align-items: center;
   width: 100%;
   padding: 10px 5px;
+  gap: 1.25rem;
+`;
+
+export const InputLabel = styled("label")`
+  white-space: nowrap;
+  flex-shrink: 0;
+  width: 5rem;
+  text-align: right;
+  text-transform: capitalize;
 `;
 
 export const InputWrapper = styled("div")`
   position: relative;
-  width: 100%;
+  flex: 1;
 `;
 
 export const StyledInput = styled.input.attrs(props => ({

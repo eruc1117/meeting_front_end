@@ -108,17 +108,17 @@ const UserForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
   return (
     <ScheduleInputContainer id={id}>
       <Row justify="center" align="middle" style={{ flexDirection: "column" }}>
-        <Col lg={12} md={11} sm={24} xs={24}>
+        <Col xs={24} style={{ width: "80%", margin: "0 auto" }}>
           <Slide direction="left" triggerOnce>
             <Block title={title} content={content} />
           </Slide>
         </Col>
 
-        <Col lg={12} md={12} sm={24} xs={24}>
+        <Col xs={24} style={{ width: "80%", margin: "0 auto", marginTop: "2rem" }}>
           <Slide direction="right" triggerOnce>
             <FormGroup autoComplete="off" onSubmit={handleSubmit}>
-              <Row gutter={[16, 16]} justify="center" align="middle">
-                <Col xs={24} sm={12}>
+              <Row gutter={[16, 16]} justify="start">
+                <Col xs={24}>
                   <Input
                     type="text"
                     name="account"
@@ -130,9 +130,33 @@ const UserForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
                   <ValidationType type="account" />
                 </Col>
 
+                <Col xs={24}>
+                  <Input
+                    type="text"
+                    name="email"
+                    labName="信箱"
+                    placeholder="Email"
+                    value={values.email}
+                    onChange={handleChange}
+                  />
+                  <ValidationType type="email" />
+                </Col>
+
+                <Col xs={24}>
+                  <Input
+                    type="text"
+                    name="nickname"
+                    labName="暱稱"
+                    placeholder="Nickname"
+                    value={values.nickname}
+                    onChange={handleChange}
+                  />
+                  <ValidationType type="nickname" />
+                </Col>
+
                 {showPasswordFields && (
                   <>
-                    <Col xs={24} sm={12}>
+                    <Col xs={24}>
                       <Input
                         type="password"
                         name="password"
@@ -144,7 +168,7 @@ const UserForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
                       <ValidationType type="password" />
                     </Col>
 
-                    <Col xs={24} sm={12}>
+                    <Col xs={24}>
                       <Input
                         type="password"
                         name="newPassword"
@@ -156,7 +180,7 @@ const UserForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
                       {newPasswordError && <Span>{newPasswordError}</Span>}
                     </Col>
 
-                    <Col xs={24} sm={12}>
+                    <Col xs={24}>
                       <Input
                         type="password"
                         name="confirmPassword"
@@ -167,8 +191,6 @@ const UserForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
                       />
                       {confirmPasswordError && <Span>{confirmPasswordError}</Span>}
                     </Col>
-
-                    <Col xs={24} sm={12} />
                   </>
                 )}
 
@@ -186,42 +208,9 @@ const UserForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
                   {apiMessage && <Span style={{ display: "block", textAlign: "center", marginTop: "0.5rem" }}>{apiMessage}</Span>}
                 </Col>
 
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="text"
-                    name="nickname"
-                    labName="暱稱"
-                    placeholder="Nickname"
-                    value={values.nickname}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="nickname" />
-                </Col>
-
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="text"
-                    name="email"
-                    labName="信箱"
-                    placeholder="Email"
-                    value={values.email}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="email" />
-                </Col>
               </Row>
             </FormGroup>
           </Slide>
-        </Col>
-
-        <Col span={24}>
-          <Row gutter={[16, 16]} justify="center" align="middle">
-            <Col lg={24} md={24} sm={24} xs={24}>
-              <ButtonContainer style={{ textAlign: "center" }}>
-                <Button>{t("參與活動")}</Button>
-              </ButtonContainer>
-            </Col>
-          </Row>
         </Col>
 
       </Row>

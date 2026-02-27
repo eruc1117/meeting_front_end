@@ -3,6 +3,7 @@ import styled from "styled-components";
 export const FormGroup = styled("form")`
   width: 100%;
   max-width: 520px;
+  margin: 0 auto;
 
   @media only screen and (max-width: 1045px) {
     max-width: 100%;
@@ -19,7 +20,7 @@ export const Span = styled("span")`
 `;
 
 export const ButtonContainer = styled("div")`
-  text-align: end;
+  text-align: center;
   position: relative;
 
   @media only screen and (max-width: 414px) {

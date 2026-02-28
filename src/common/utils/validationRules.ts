@@ -21,9 +21,6 @@ export function validate(values: validateProps) {
 export function scheduleVal(values: scheduleValProps) {
   let errors = {} as scheduleValProps;
 
-  if (!values.eventID) {
-    errors.eventID = "活動 ID 為必填欄位";
-  }
   if (!values.eventName) {
     errors.eventName = "活動名稱為必填欄位";
   }
@@ -38,9 +35,6 @@ export function scheduleVal(values: scheduleValProps) {
   }
   if (!values.eventEndTime) {
     errors.eventEndTime = "結束時間為必填欄位";
-  }
-  if (!values.eventContent) {
-    errors.eventContent = "活動內容為必填欄位";
   }
   return errors;
 }

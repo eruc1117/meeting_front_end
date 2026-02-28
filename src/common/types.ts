@@ -48,6 +48,9 @@ export interface scheduleValProps {
   eventEndDate: string;
   eventEndTime: string;
   eventContent: string;
+  eventPlace: string;
+  eventPublic: string;
+  eventParticipants: string;
 }
 
 export interface userValProps {

@@ -64,7 +64,7 @@ export const DayCell = styled("div")<{ isToday: boolean; isCurrentMonth: boolean
   color: ${({ isCurrentMonth }) => (isCurrentMonth ? "#222" : "#ccc")};
   font-size: 0.875rem;
   cursor: ${({ isCurrentMonth }) => (isCurrentMonth ? "pointer" : "default")};
-  background: ${({ isSelected }) => (isSelected ? "#dff0fd" : "transparent")};
+  background: ${({ isSelected }) => (isSelected ? "#fff7d9" : "transparent")};
   transition: background 0.15s ease;
 
   &::before {
@@ -75,7 +75,7 @@ export const DayCell = styled("div")<{ isToday: boolean; isCurrentMonth: boolean
 
   &:hover {
     background: ${({ isCurrentMonth, isSelected }) =>
-      isCurrentMonth ? (isSelected ? "#bde0fe" : "#f0f8ff") : "transparent"};
+      isCurrentMonth ? (isSelected ? "#fff7d9" : "#f8ddd8") : "transparent"};
   }
 
   span {
@@ -96,4 +96,103 @@ export const DayCell = styled("div")<{ isToday: boolean; isCurrentMonth: boolean
       justify-content: center;
     `}
   }
+`;
+
+export const EventsArea = styled("div")`
+  position: absolute;
+  top: 1.8em;
+  left: 0;
+  right: 0;
+  bottom: 20%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 1px 2px;
+`;
+
+export const EventBlock = styled("div")<{ isPublic: boolean }>`
+  background: ${({ isPublic }) => (isPublic ? "#bfdfff" : "#bbf7c5")};
+  color: #333;
+  font-size: 0.6rem;
+  padding: 1px 3px;
+  border-radius: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+  cursor: pointer;
+
+  &:hover {
+    filter: brightness(0.92);
+  }
+`;
+
+export const PopupOverlay = styled("div")`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+export const PopupCard = styled("div")`
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  min-width: 320px;
+  max-width: 420px;
+  width: 90vw;
+  overflow: hidden;
+`;
+
+export const PopupHeader = styled("div")<{ isPublic: boolean }>`
+  background: ${({ isPublic }) => (isPublic ? "#bfdfff" : "#bbf7c5")};
+  padding: 0.9rem 1.1rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+export const PopupTitle = styled("span")`
+  font-size: 1rem;
+  font-weight: 700;
+  color: #222;
+`;
+
+export const PopupClose = styled("button")`
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #555;
+  line-height: 1;
+  padding: 0;
+
+  &:hover {
+    color: #000;
+  }
+`;
+
+export const PopupBody = styled("div")`
+  padding: 1rem 1.2rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+`;
+
+export const PopupRow = styled("div")`
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #333;
+  align-items: flex-start;
+`;
+
+export const PopupLabel = styled("span")`
+  color: #888;
+  min-width: 4.5em;
+  flex-shrink: 0;
 `;

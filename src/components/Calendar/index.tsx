@@ -1,5 +1,6 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { ScheduleContext } from "../../contexts/SechduleContext";
+import { AuthContext } from "../../contexts/AuthContext";
 import {
   CalendarWrapper,
   CalendarHeader,
@@ -48,10 +49,20 @@ const Calendar = () => {
   const [viewDate, setViewDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [popupEvent, setPopupEvent] = useState<EventData | null>(null);
-  const { tableData } = useContext(ScheduleContext);
+  const { tableData, getSchedules } = useContext(ScheduleContext);
+  const { user } = useContext(AuthContext);
 
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const lastDay = new Date(year, month + 1, 0).getDate();
+    const startISO = `${year}-${pad(month + 1)}-01T00:00:00`;
+    const endISO = `${year}-${pad(month + 1)}-${pad(lastDay)}T23:59:59`;
+    getSchedules(user.id, startISO, endISO).catch(() => {});
+  }, [year, month, user?.id]);
 
   // Group events by date key
   const eventsByDate: Record<string, EventData[]> = {};

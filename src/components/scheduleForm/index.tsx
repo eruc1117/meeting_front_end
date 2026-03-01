@@ -56,8 +56,8 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
   const buildScheduleBody = () => ({
     title: values.eventName,
     description: values.eventContent || undefined,
-    start_time: `${values.eventStartDate}T${values.eventStartTime}`,
-    end_time: `${values.eventEndDate}T${values.eventEndTime}`,
+    start_time: `${values.eventStartDate}T${values.eventStartTime}:00`,
+    end_time: `${values.eventEndDate}T${values.eventEndTime}:00`,
     is_public: values.eventPublic === "true",
     location: values.eventPlace || undefined,
     participants: values.eventParticipants || undefined,
@@ -65,8 +65,8 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
 
   const handleCreateSchedule = async () => {
     try {
-      await createSchedule({ user_id: user.id, ...buildScheduleBody() });
-      setValues(initialValues);
+      const result = await createSchedule({ user_id: Number(user.id), ...buildScheduleBody() });
+      setValues({ ...initialValues, eventID: String(result.data.id) });
     } catch (error) {
       console.error("Failed to create schedule:", error);
     }
@@ -122,18 +122,6 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
           <Slide direction="right" triggerOnce>
             <FormGroup autoComplete="off" onSubmit={handleSubmit}>
               <Row gutter={[16, 16]} justify="center" align="middle">
-
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="text"
-                    name="eventID"
-                    labName="活動 ID"
-                    placeholder="Event ID"
-                    value={values.eventID}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="eventID" />
-                </Col>
 
                 <Col xs={24} sm={12}>
                   <Input
@@ -250,17 +238,17 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
                   <Row gutter={[16, 16]} justify="center" align="middle">
                     <Col lg={8} md={8} sm={24} xs={24}>
                       <ButtonContainer style={{ textAlign: "center" }}>
-                        <Button onClick={handleCreateSchedule}>{t("新增")}</Button>
+                        <Button type="button" onClick={handleCreateSchedule}>{t("新增")}</Button>
                       </ButtonContainer>
                     </Col>
                     <Col lg={8} md={8} sm={24} xs={24}>
                       <ButtonContainer style={{ textAlign: "center" }}>
-                        <Button onClick={handleUpdateSchedule}>{t("修改")}</Button>
+                        <Button type="button" onClick={handleUpdateSchedule}>{t("修改")}</Button>
                       </ButtonContainer>
                     </Col>
                     <Col lg={8} md={8} sm={24} xs={24}>
                       <ButtonContainer style={{ textAlign: "center" }}>
-                        <Button onClick={handleDeleteSchedule}>{t("刪除")}</Button>
+                        <Button type="button" onClick={handleDeleteSchedule}>{t("刪除")}</Button>
                       </ButtonContainer>
                     </Col>
                   </Row>
@@ -269,22 +257,22 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
                       <Row gutter={[16, 16]} justify="center" align="middle">
                         <Col lg={6} md={6} sm={24} xs={24}>
                           <ButtonContainer style={{ textAlign: "center" }}>
-                            <Button onClick={() => getSchedules(user?.id)}>{t("查詢事件")}</Button>
+                            <Button type="button" onClick={() => getSchedules(user?.id)}>{t("查詢事件")}</Button>
                           </ButtonContainer>
                         </Col>
                         <Col lg={6} md={6} sm={24} xs={24}>
                           <ButtonContainer style={{ textAlign: "center" }}>
-                            <Button name="submit">{t("查詢空閒")}</Button>
+                            <Button type="submit" name="submit">{t("查詢空閒")}</Button>
                           </ButtonContainer>
                         </Col>
                         <Col lg={6} md={6} sm={24} xs={24}>
                           <ButtonContainer style={{ textAlign: "center" }}>
-                            <Button onClick={handleAttendSchedule}>{t("參加活動")}</Button>
+                            <Button type="button" onClick={handleAttendSchedule}>{t("參加活動")}</Button>
                           </ButtonContainer>
                         </Col>
                         <Col lg={6} md={6} sm={24} xs={24}>
                           <ButtonContainer style={{ textAlign: "center" }}>
-                            <Button onClick={handleLeaveSchedule}>{t("退出活動")}</Button>
+                            <Button type="button" onClick={handleLeaveSchedule}>{t("退出活動")}</Button>
                           </ButtonContainer>
                         </Col>
                       </Row>

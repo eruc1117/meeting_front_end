@@ -20,9 +20,21 @@ import {
   PopupBody,
   PopupRow,
   PopupLabel,
+  ContextMenu,
+  ContextMenuItem,
+  ContextMenuDivider,
+  ModalField,
+  ModalLabel,
+  ModalInput,
+  ModalSelect,
+  ModalRow,
+  ModalActions,
+  ModalBtn,
 } from "./styles";
 
 const WEEK_LABELS = ["日", "一", "二", "三", "四", "五", "六"];
+
+const pad = (n: number) => String(n).padStart(2, "0");
 
 const toKey = (year: number, month: number, day: number) =>
   `${year}-${month}-${day}`;
@@ -30,11 +42,11 @@ const toKey = (year: number, month: number, day: number) =>
 const formatTime = (iso: string) => {
   const d = new Date(iso);
   if (isNaN(d.getTime())) return iso;
-  const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
-interface EventData {
+export interface EventData {
+  Id: string;
   title: string;
   isPublic: boolean;
   startTime: string;
@@ -44,12 +56,53 @@ interface EventData {
   content: string;
 }
 
-const Calendar = () => {
+interface CalendarProps {}
+
+const initialAddForm = {
+  title: "",
+  startDate: "",
+  startTime: "",
+  endDate: "",
+  endTime: "",
+  description: "",
+  location: "",
+  participants: "",
+  isPublic: "false",
+};
+
+const initialEditForm = {
+  Id: "",
+  title: "",
+  startDate: "",
+  startTime: "",
+  endDate: "",
+  endTime: "",
+  description: "",
+  location: "",
+  participants: "",
+  isPublic: "false",
+};
+
+type MenuState = {
+  day: number;
+  events: EventData[];
+  x: number;
+  y: number;
+  width: number;
+} | null;
+
+const Calendar = (_props: CalendarProps) => {
   const today = new Date();
   const [viewDate, setViewDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [popupEvent, setPopupEvent] = useState<EventData | null>(null);
-  const { tableData, getSchedules } = useContext(ScheduleContext);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [menuState, setMenuState] = useState<MenuState>(null);
+  const [addFormOpen, setAddFormOpen] = useState(false);
+  const [addForm, setAddForm] = useState(initialAddForm);
+  const [editFormOpen, setEditFormOpen] = useState(false);
+  const [editForm, setEditForm] = useState(initialEditForm);
+  const { tableData, getSchedules, createSchedule, updateSchedule, deleteSchedule } = useContext(ScheduleContext);
   const { user } = useContext(AuthContext);
 
   const year = viewDate.getFullYear();
@@ -57,14 +110,30 @@ const Calendar = () => {
 
   useEffect(() => {
     if (!user?.id) return;
-    const pad = (n: number) => String(n).padStart(2, "0");
     const lastDay = new Date(year, month + 1, 0).getDate();
     const startISO = `${year}-${pad(month + 1)}-01T00:00:00`;
     const endISO = `${year}-${pad(month + 1)}-${pad(lastDay)}T23:59:59`;
     getSchedules(user.id, startISO, endISO).catch(() => {});
   }, [year, month, user?.id]);
 
-  // Group events by date key
+  // 點擊外部、滾動或按 Escape 關閉選單
+  useEffect(() => {
+    if (!menuState) return;
+    const close = () => { setMenuState(null); };
+    const handleKeyDown = (e: KeyboardEvent) => { if (e.key === "Escape") close(); };
+    document.addEventListener("click", close);
+    document.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("wheel", close, true);
+    return () => {
+      document.removeEventListener("click", close);
+      document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("wheel", close, true);
+    };
+  }, [menuState]);
+
+  // 依日期分組活動
   const eventsByDate: Record<string, EventData[]> = {};
   if (tableData) {
     (tableData as any[]).forEach((event) => {
@@ -74,6 +143,7 @@ const Calendar = () => {
           const key = toKey(date.getFullYear(), date.getMonth(), date.getDate());
           if (!eventsByDate[key]) eventsByDate[key] = [];
           eventsByDate[key].push({
+            Id: event.Id ?? "",
             title: event.title,
             isPublic: event.isPublic ?? false,
             startTime: event.startTime,
@@ -92,7 +162,6 @@ const Calendar = () => {
   const daysInPrevMonth = new Date(year, month, 0).getDate();
 
   const cells: { day: number; isCurrentMonth: boolean }[] = [];
-
   for (let i = firstDay - 1; i >= 0; i--) {
     cells.push({ day: daysInPrevMonth - i, isCurrentMonth: false });
   }
@@ -126,6 +195,106 @@ const Calendar = () => {
   const prevMonth = () => setViewDate(new Date(year, month - 1, 1));
   const nextMonth = () => setViewDate(new Date(year, month + 1, 1));
 
+  const handleDayDoubleClick = (e: React.MouseEvent, day: number, isCurrentMonth: boolean) => {
+    if (!isCurrentMonth) return;
+    e.preventDefault();
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const key = toKey(year, month, day);
+    const events = eventsByDate[key] ?? [];
+    setSelected(new Set([key]));
+    setMenuState({ day, events, x: e.clientX, y: e.clientY, width: rect.width });
+  };
+
+  const handleMenuNew = () => {
+    if (!menuState) return;
+    const dateStr = `${year}-${pad(month + 1)}-${pad(menuState.day)}`;
+    setAddForm({ ...initialAddForm, startDate: dateStr, endDate: dateStr });
+    setAddFormOpen(true);
+    setMenuState(null);
+  };
+
+  const handleAddFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setAddForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleAddConfirm = async () => {
+    try {
+      await createSchedule({
+        user_id: Number(user.id),
+        title: addForm.title,
+        description: addForm.description || undefined,
+        start_time: `${addForm.startDate}T${addForm.startTime}:00`,
+        end_time: `${addForm.endDate}T${addForm.endTime}:00`,
+        is_public: addForm.isPublic === "true",
+        location: addForm.location || undefined,
+        participants: addForm.participants || undefined,
+      });
+      setAddFormOpen(false);
+    } catch (error) {
+      console.error("Failed to create schedule:", error);
+    }
+  };
+
+  const handleOpenEdit = () => {
+    if (!popupEvent) return;
+    const parseDate = (iso: string) => iso?.split("T")[0] ?? "";
+    const parseTime = (iso: string) => iso?.split("T")[1]?.slice(0, 5) ?? "";
+    setEditForm({
+      Id: popupEvent.Id,
+      title: popupEvent.title,
+      startDate: parseDate(popupEvent.startTime),
+      startTime: parseTime(popupEvent.startTime),
+      endDate: parseDate(popupEvent.endTime),
+      endTime: parseTime(popupEvent.endTime),
+      description: popupEvent.content,
+      location: popupEvent.location,
+      participants: popupEvent.participants,
+      isPublic: popupEvent.isPublic ? "true" : "false",
+    });
+    setPopupEvent(null);
+    setConfirmDelete(false);
+    setEditFormOpen(true);
+  };
+
+  const handleEditFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setEditForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditConfirm = async () => {
+    try {
+      await updateSchedule(editForm.Id, {
+        title: editForm.title,
+        description: editForm.description || undefined,
+        start_time: `${editForm.startDate}T${editForm.startTime}:00`,
+        end_time: `${editForm.endDate}T${editForm.endTime}:00`,
+        is_public: editForm.isPublic === "true",
+        location: editForm.location || undefined,
+        participants: editForm.participants || undefined,
+      });
+      setEditFormOpen(false);
+    } catch (error) {
+      console.error("Failed to update schedule:", error);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!popupEvent) return;
+    try {
+      await deleteSchedule(Number(popupEvent.Id));
+      setPopupEvent(null);
+      setConfirmDelete(false);
+    } catch (error) {
+      console.error("Failed to delete schedule:", error);
+    }
+  };
+
+  const closePopup = () => {
+    setPopupEvent(null);
+    setConfirmDelete(false);
+  };
+
   return (
     <>
       <CalendarWrapper>
@@ -150,6 +319,7 @@ const Calendar = () => {
                 isCurrentMonth={cell.isCurrentMonth}
                 isSelected={isSelected(cell.day, cell.isCurrentMonth)}
                 onClick={() => toggleSelected(cell.day, cell.isCurrentMonth)}
+                onDoubleClick={(e) => handleDayDoubleClick(e, cell.day, cell.isCurrentMonth)}
               >
                 <span>{cell.day}</span>
                 {events.length > 0 && (
@@ -162,6 +332,7 @@ const Calendar = () => {
                           e.stopPropagation();
                           setPopupEvent(evt);
                         }}
+                        onDoubleClick={(e) => e.stopPropagation()}
                       >
                         {evt.title}
                       </EventBlock>
@@ -175,11 +346,11 @@ const Calendar = () => {
       </CalendarWrapper>
 
       {popupEvent && (
-        <PopupOverlay onClick={() => setPopupEvent(null)}>
+        <PopupOverlay onClick={closePopup}>
           <PopupCard onClick={(e) => e.stopPropagation()}>
             <PopupHeader isPublic={popupEvent.isPublic}>
               <PopupTitle>{popupEvent.title}</PopupTitle>
-              <PopupClose onClick={() => setPopupEvent(null)}>✕</PopupClose>
+              <PopupClose onClick={closePopup}>✕</PopupClose>
             </PopupHeader>
             <PopupBody>
               <PopupRow>
@@ -207,6 +378,254 @@ const Calendar = () => {
                   <span>{popupEvent.content}</span>
                 </PopupRow>
               )}
+
+              {confirmDelete ? (
+                <>
+                  <PopupRow style={{ marginTop: "0.5rem", color: "#c00", fontSize: "0.875rem" }}>
+                    確定要刪除此活動嗎？
+                  </PopupRow>
+                  <ModalActions>
+                    <ModalBtn onClick={() => setConfirmDelete(false)}>取消</ModalBtn>
+                    <ModalBtn primary onClick={handleDeleteConfirm}>確定刪除</ModalBtn>
+                  </ModalActions>
+                </>
+              ) : (
+                <ModalActions>
+                  <ModalBtn onClick={handleOpenEdit}>修改</ModalBtn>
+                  <ModalBtn primary onClick={() => setConfirmDelete(true)}>刪除</ModalBtn>
+                </ModalActions>
+              )}
+            </PopupBody>
+          </PopupCard>
+        </PopupOverlay>
+      )}
+
+      {menuState && (
+        <ContextMenu
+          style={{ top: menuState.y, left: menuState.x, width: menuState.width }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <ContextMenuItem onClick={handleMenuNew}>新增</ContextMenuItem>
+        </ContextMenu>
+      )}
+
+      {addFormOpen && (
+        <PopupOverlay onClick={() => setAddFormOpen(false)}>
+          <PopupCard onClick={(e) => e.stopPropagation()}>
+            <PopupHeader isPublic={false}>
+              <PopupTitle>新增活動</PopupTitle>
+              <PopupClose onClick={() => setAddFormOpen(false)}>✕</PopupClose>
+            </PopupHeader>
+            <PopupBody>
+              <ModalField>
+                <ModalLabel>活動名稱 *</ModalLabel>
+                <ModalInput
+                  name="title"
+                  placeholder="活動名稱"
+                  value={addForm.title}
+                  onChange={handleAddFormChange}
+                />
+              </ModalField>
+
+              <ModalRow>
+                <ModalField>
+                  <ModalLabel>開始日期 *</ModalLabel>
+                  <ModalInput
+                    type="date"
+                    name="startDate"
+                    value={addForm.startDate}
+                    onChange={handleAddFormChange}
+                  />
+                </ModalField>
+                <ModalField>
+                  <ModalLabel>開始時間 *</ModalLabel>
+                  <ModalInput
+                    type="time"
+                    name="startTime"
+                    value={addForm.startTime}
+                    onChange={handleAddFormChange}
+                  />
+                </ModalField>
+              </ModalRow>
+
+              <ModalRow>
+                <ModalField>
+                  <ModalLabel>結束日期 *</ModalLabel>
+                  <ModalInput
+                    type="date"
+                    name="endDate"
+                    value={addForm.endDate}
+                    onChange={handleAddFormChange}
+                  />
+                </ModalField>
+                <ModalField>
+                  <ModalLabel>結束時間 *</ModalLabel>
+                  <ModalInput
+                    type="time"
+                    name="endTime"
+                    value={addForm.endTime}
+                    onChange={handleAddFormChange}
+                  />
+                </ModalField>
+              </ModalRow>
+
+              <ModalField>
+                <ModalLabel>活動內容</ModalLabel>
+                <ModalInput
+                  name="description"
+                  placeholder="活動內容"
+                  value={addForm.description}
+                  onChange={handleAddFormChange}
+                />
+              </ModalField>
+
+              <ModalField>
+                <ModalLabel>活動地點</ModalLabel>
+                <ModalInput
+                  name="location"
+                  placeholder="活動地點"
+                  value={addForm.location}
+                  onChange={handleAddFormChange}
+                />
+              </ModalField>
+
+              <ModalField>
+                <ModalLabel>參與人員</ModalLabel>
+                <ModalInput
+                  name="participants"
+                  placeholder="小明、小美"
+                  value={addForm.participants}
+                  onChange={handleAddFormChange}
+                />
+              </ModalField>
+
+              <ModalField>
+                <ModalLabel>是否公開</ModalLabel>
+                <ModalSelect
+                  name="isPublic"
+                  value={addForm.isPublic}
+                  onChange={handleAddFormChange}
+                >
+                  <option value="false">不公開（個人）</option>
+                  <option value="true">公開</option>
+                </ModalSelect>
+              </ModalField>
+
+              <ModalActions>
+                <ModalBtn onClick={() => setAddFormOpen(false)}>取消</ModalBtn>
+                <ModalBtn primary onClick={handleAddConfirm}>確定</ModalBtn>
+              </ModalActions>
+            </PopupBody>
+          </PopupCard>
+        </PopupOverlay>
+      )}
+
+      {editFormOpen && (
+        <PopupOverlay onClick={() => setEditFormOpen(false)}>
+          <PopupCard onClick={(e) => e.stopPropagation()}>
+            <PopupHeader isPublic={editForm.isPublic === "true"}>
+              <PopupTitle>修改活動</PopupTitle>
+              <PopupClose onClick={() => setEditFormOpen(false)}>✕</PopupClose>
+            </PopupHeader>
+            <PopupBody>
+              <ModalField>
+                <ModalLabel>活動名稱 *</ModalLabel>
+                <ModalInput
+                  name="title"
+                  placeholder="活動名稱"
+                  value={editForm.title}
+                  onChange={handleEditFormChange}
+                />
+              </ModalField>
+
+              <ModalRow>
+                <ModalField>
+                  <ModalLabel>開始日期 *</ModalLabel>
+                  <ModalInput
+                    type="date"
+                    name="startDate"
+                    value={editForm.startDate}
+                    onChange={handleEditFormChange}
+                  />
+                </ModalField>
+                <ModalField>
+                  <ModalLabel>開始時間 *</ModalLabel>
+                  <ModalInput
+                    type="time"
+                    name="startTime"
+                    value={editForm.startTime}
+                    onChange={handleEditFormChange}
+                  />
+                </ModalField>
+              </ModalRow>
+
+              <ModalRow>
+                <ModalField>
+                  <ModalLabel>結束日期 *</ModalLabel>
+                  <ModalInput
+                    type="date"
+                    name="endDate"
+                    value={editForm.endDate}
+                    onChange={handleEditFormChange}
+                  />
+                </ModalField>
+                <ModalField>
+                  <ModalLabel>結束時間 *</ModalLabel>
+                  <ModalInput
+                    type="time"
+                    name="endTime"
+                    value={editForm.endTime}
+                    onChange={handleEditFormChange}
+                  />
+                </ModalField>
+              </ModalRow>
+
+              <ModalField>
+                <ModalLabel>活動內容</ModalLabel>
+                <ModalInput
+                  name="description"
+                  placeholder="活動內容"
+                  value={editForm.description}
+                  onChange={handleEditFormChange}
+                />
+              </ModalField>
+
+              <ModalField>
+                <ModalLabel>活動地點</ModalLabel>
+                <ModalInput
+                  name="location"
+                  placeholder="活動地點"
+                  value={editForm.location}
+                  onChange={handleEditFormChange}
+                />
+              </ModalField>
+
+              <ModalField>
+                <ModalLabel>參與人員</ModalLabel>
+                <ModalInput
+                  name="participants"
+                  placeholder="小明、小美"
+                  value={editForm.participants}
+                  onChange={handleEditFormChange}
+                />
+              </ModalField>
+
+              <ModalField>
+                <ModalLabel>是否公開</ModalLabel>
+                <ModalSelect
+                  name="isPublic"
+                  value={editForm.isPublic}
+                  onChange={handleEditFormChange}
+                >
+                  <option value="false">不公開（個人）</option>
+                  <option value="true">公開</option>
+                </ModalSelect>
+              </ModalField>
+
+              <ModalActions>
+                <ModalBtn onClick={() => setEditFormOpen(false)}>取消</ModalBtn>
+                <ModalBtn primary onClick={handleEditConfirm}>確定</ModalBtn>
+              </ModalActions>
             </PopupBody>
           </PopupCard>
         </PopupOverlay>

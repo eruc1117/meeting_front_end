@@ -19,7 +19,7 @@ export const UserProvider = ({ children }) => {
     const createSchedule = async (scheduleData) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`${process.env.REACT_APP_BASEURL}/api/schedules`, {
+            const response = await fetch(`${process.env.REACT_APP_BASEURL}/api/schedules/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -44,36 +44,36 @@ export const UserProvider = ({ children }) => {
     };
 
     // Get all schedules for the user
-    const getSchedules = async () => {
+    const getSchedules = async (userId) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`${process.env.REACT_APP_BASEURL}/api/schedules`, {
+            const response = await fetch(`${process.env.REACT_APP_BASEURL}/api/schedules/query`, {
+                method: 'POST',
                 headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
-                }
+                },
+                body: JSON.stringify({ user_id: Number(userId) })
             });
 
             const data = await response.json();
-
-            console.log("data ---> ", data.data);
-
-
 
             if (!response.ok) {
                 throw new Error(data.message || 'Failed to fetch schedules');
             }
 
-            const displayData = data.data.map((element) => {
-                const returnData = {};
-                returnData["Id"] = element.id;
-                returnData["title"] = element.title;
-                returnData["content"] = element.description;
-                returnData["startTime"] = element.start_time;
-                returnData["endTime"] = element.end_time;
-
-                return returnData;
-            }) 
-            if (data.data.length > 0) {
+            const schedules = data.data?.schedule ?? [];
+            const displayData = schedules.map((element) => ({
+                Id: String(element.id),
+                title: element.title,
+                content: element.description ?? "",
+                startTime: element.start_time,
+                endTime: element.end_time,
+                isPublic: element.is_public ?? false,
+                location: element.location ?? "",
+                participants: element.participants ?? "",
+            }));
+            if (displayData.length > 0) {
                 setTableData(displayData);
             }
             return data;
@@ -87,7 +87,7 @@ export const UserProvider = ({ children }) => {
     const updateSchedule = async (id, scheduleData) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`${process.env.REACT_APP_BASEURL}/api/schedules/${id}`, {
+            const response = await fetch(`${process.env.REACT_APP_BASEURL}/api/schedules/update/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ export const UserProvider = ({ children }) => {
     const deleteSchedule = async (id) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`${process.env.REACT_APP_BASEURL}/api/schedules/${id}`, {
+            const response = await fetch(`${process.env.REACT_APP_BASEURL}/api/schedules/delete/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`

@@ -16,8 +16,11 @@ import {
   SelectContainer,
   SelectLabel,
   StyledSelect,
+  SearchRow,
+  SearchInput,
+  SearchButton,
 } from "./styles";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { ScheduleContext } from "../../contexts/SechduleContext";
 import { AuthContext } from "../../contexts/AuthContext";
 import Calendar from "../Calendar";
@@ -105,6 +108,14 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
     }
   };
 
+  const [searchKeyword, setSearchKeyword] = useState("");
+
+  const handleSearch = () => {
+    getSchedules(user?.id);
+  };
+
+
+
   return (
     <ScheduleInputContainer id={id}>
       <Row justify="center" align="middle" style={{ flexDirection: "column" }}>
@@ -115,174 +126,22 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
         </Col>
 
         <Col lg={24} md={24} sm={24} xs={24} style={{ display: "flex", justifyContent: "center" }}>
+          <SearchRow>
+            <SearchInput
+              type="text"
+              placeholder="搜尋活動..."
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            />
+            <SearchButton onClick={handleSearch}>搜尋</SearchButton>
+          </SearchRow>
+        </Col>
+
+        <Col lg={24} md={24} sm={24} xs={24} style={{ display: "flex", justifyContent: "center" }}>
           <Calendar />
         </Col>
 
-        <Col lg={12} md={12} sm={24} xs={24}>
-          <Slide direction="right" triggerOnce>
-            <FormGroup autoComplete="off" onSubmit={handleSubmit}>
-              <Row gutter={[16, 16]} justify="center" align="middle">
-
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="text"
-                    name="eventName"
-                    labName="活動名稱"
-                    placeholder="Event Name"
-                    value={values.eventName}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="eventName" />
-                </Col>
-
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="date"
-                    name="eventStartDate"
-                    labName="開始日期"
-                    placeholder="Start Date"
-                    value={values.eventStartDate}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="eventStartDate" />
-                </Col>
-
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="time"
-                    name="eventStartTime"
-                    labName="開始時間"
-                    placeholder="Start Time"
-                    value={values.eventStartTime}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="eventStartTime" />
-                </Col>
-
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="date"
-                    name="eventEndDate"
-                    labName="結束日期"
-                    placeholder="End Date"
-                    value={values.eventEndDate}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="eventEndDate" />
-                </Col>
-
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="time"
-                    name="eventEndTime"
-                    labName="結束時間"
-                    placeholder="End Time"
-                    value={values.eventEndTime}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="eventEndTime" />
-                </Col>
-
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="text"
-                    name="eventContent"
-                    labName="活動內容"
-                    placeholder="Event Content"
-                    value={values.eventContent}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="eventContent" />
-                </Col>
-
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="text"
-                    name="eventPlace"
-                    labName="活動地點"
-                    placeholder="Event Place"
-                    value={values.eventPlace}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="eventPlace" />
-                </Col>
-
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="text"
-                    name="eventParticipants"
-                    labName="參與人員"
-                    placeholder="小明、小美"
-                    value={values.eventParticipants}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="eventParticipants" />
-                </Col>
-
-                <Col xs={24} sm={12}>
-                  <SelectContainer>
-                    <SelectLabel htmlFor="eventPublic">{t("是否公開")}</SelectLabel>
-                    <StyledSelect
-                      id="eventPublic"
-                      name="eventPublic"
-                      value={values.eventPublic}
-                      onChange={handleChange as any}
-                    >
-                      <option value="false">不公開（個人）</option>
-                      <option value="true">公開</option>
-                    </StyledSelect>
-                  </SelectContainer>
-                </Col>
-
-                <Col span={24}>
-                  <Row gutter={[16, 16]} justify="center" align="middle">
-                    <Col lg={8} md={8} sm={24} xs={24}>
-                      <ButtonContainer style={{ textAlign: "center" }}>
-                        <Button type="button" onClick={handleCreateSchedule}>{t("新增")}</Button>
-                      </ButtonContainer>
-                    </Col>
-                    <Col lg={8} md={8} sm={24} xs={24}>
-                      <ButtonContainer style={{ textAlign: "center" }}>
-                        <Button type="button" onClick={handleUpdateSchedule}>{t("修改")}</Button>
-                      </ButtonContainer>
-                    </Col>
-                    <Col lg={8} md={8} sm={24} xs={24}>
-                      <ButtonContainer style={{ textAlign: "center" }}>
-                        <Button type="button" onClick={handleDeleteSchedule}>{t("刪除")}</Button>
-                      </ButtonContainer>
-                    </Col>
-                  </Row>
-                  <Row gutter={[16, 16]} justify="center" align="middle">
-                    <Col span={24}>
-                      <Row gutter={[16, 16]} justify="center" align="middle">
-                        <Col lg={6} md={6} sm={24} xs={24}>
-                          <ButtonContainer style={{ textAlign: "center" }}>
-                            <Button type="button" onClick={() => getSchedules(user?.id)}>{t("查詢事件")}</Button>
-                          </ButtonContainer>
-                        </Col>
-                        <Col lg={6} md={6} sm={24} xs={24}>
-                          <ButtonContainer style={{ textAlign: "center" }}>
-                            <Button type="submit" name="submit">{t("查詢空閒")}</Button>
-                          </ButtonContainer>
-                        </Col>
-                        <Col lg={6} md={6} sm={24} xs={24}>
-                          <ButtonContainer style={{ textAlign: "center" }}>
-                            <Button type="button" onClick={handleAttendSchedule}>{t("參加活動")}</Button>
-                          </ButtonContainer>
-                        </Col>
-                        <Col lg={6} md={6} sm={24} xs={24}>
-                          <ButtonContainer style={{ textAlign: "center" }}>
-                            <Button type="button" onClick={handleLeaveSchedule}>{t("退出活動")}</Button>
-                          </ButtonContainer>
-                        </Col>
-                      </Row>
-                    </Col>
-                  </Row>
-                </Col>
-              </Row>
-            </FormGroup>
-          </Slide>
-        </Col>
       </Row>
     </ScheduleInputContainer>
   );

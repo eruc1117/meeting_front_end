@@ -66,6 +66,7 @@ export const DayCell = styled("div")<{ isToday: boolean; isCurrentMonth: boolean
   cursor: ${({ isCurrentMonth }) => (isCurrentMonth ? "pointer" : "default")};
   background: ${({ isSelected }) => (isSelected ? "#fff7d9" : "transparent")};
   transition: background 0.15s ease;
+  user-select: none;
 
   &::before {
     content: "";
@@ -195,4 +196,100 @@ export const PopupLabel = styled("span")`
   color: #888;
   min-width: 4.5em;
   flex-shrink: 0;
+`;
+
+export const ContextMenu = styled("div")`
+  position: fixed;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 2000;
+  overflow: hidden;
+`;
+
+export const ContextMenuItem = styled("button")`
+  display: block;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: #222;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+`;
+
+export const ContextMenuDivider = styled("div")`
+  height: 1px;
+  background: #e0e0e0;
+  margin: 2px 0;
+`;
+
+export const ModalField = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+`;
+
+export const ModalLabel = styled("label")`
+  font-size: 0.75rem;
+  color: #888;
+`;
+
+export const ModalInput = styled("input")`
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.875rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  outline: none;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: #000;
+  }
+`;
+
+export const ModalSelect = styled("select")`
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.875rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  outline: none;
+  box-sizing: border-box;
+  background: #fff;
+`;
+
+export const ModalRow = styled("div")`
+  display: flex;
+  gap: 0.75rem;
+`;
+
+export const ModalActions = styled("div")`
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+`;
+
+export const ModalBtn = styled("button")<{ primary?: boolean }>`
+  padding: 0.4rem 1.2rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border: 1px solid ${({ primary }) => (primary ? "#000" : "#e0e0e0")};
+  background: ${({ primary }) => (primary ? "#000" : "#fff")};
+  color: ${({ primary }) => (primary ? "#fff" : "#333")};
+
+  &:hover {
+    background: ${({ primary }) => (primary ? "rgb(255, 130, 92)" : "#f5f5f5")};
+    border-color: ${({ primary }) => (primary ? "rgb(255, 130, 92)" : "#ccc")};
+  }
 `;

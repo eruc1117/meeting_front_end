@@ -28,7 +28,7 @@ export const ScheduleProvider = ({ children }) => {
     const getSchedules = async (userId, startTime, endTime) => {
         try {
             const token = localStorage.getItem("token");
-            const body = { user_id: userId };
+            const body = { user_id: Number(userId) };
             if (startTime) body.start_time = startTime;
             if (endTime) body.end_time = endTime;
 
@@ -53,11 +53,11 @@ export const ScheduleProvider = ({ children }) => {
         }
     };
 
-    // 建立活動（POST /api/schedules）
+    // 建立活動（POST /api/schedules/create）
     const createSchedule = async (scheduleData) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`${BASE_URL}/api/schedules`, {
+            const response = await fetch(`${BASE_URL}/api/schedules/create`, {
                 method: "POST",
                 headers: authHeaders(token),
                 body: JSON.stringify(scheduleData),
@@ -77,11 +77,11 @@ export const ScheduleProvider = ({ children }) => {
         }
     };
 
-    // 更新活動（PUT /api/schedules/:id）
+    // 更新活動（PUT /api/schedules/update/:id）
     const updateSchedule = async (id, scheduleData) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`${BASE_URL}/api/schedules/${id}`, {
+            const response = await fetch(`${BASE_URL}/api/schedules/update/${id}`, {
                 method: "PUT",
                 headers: authHeaders(token),
                 body: JSON.stringify(scheduleData),
@@ -103,11 +103,11 @@ export const ScheduleProvider = ({ children }) => {
         }
     };
 
-    // 刪除活動（DELETE /api/schedules/:id）
+    // 刪除活動（DELETE /api/schedules/delete/:id）
     const deleteSchedule = async (id) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`${BASE_URL}/api/schedules/${id}`, {
+            const response = await fetch(`${BASE_URL}/api/schedules/delete/${id}`, {
                 method: "DELETE",
                 headers: authHeaders(token),
             });

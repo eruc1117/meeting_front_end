@@ -22,10 +22,13 @@ const initialValues: scheduleValProps = {
   eventStartTime: "",
   eventEndDate: "",
   eventEndTime: "",
-  eventContent: ""
+  eventContent: "",
+  eventPlace: "",
+  eventPublic: "false",
+  eventParticipants: "",
 };
-const columnsTitle = ["日期","活動主旨", "內容", "時間", "地點", "報名"];
-const columns = ["date", "title", "content", "Time", "place", "attend"];
+const columnsTitle = ["日期", "活動主旨", "內容", "結束時間", "地點", "參與人員"];
+const columns = ["startTime", "title", "content", "endTime", "location", "participants"];
 
 
 

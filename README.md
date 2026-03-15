@@ -1,112 +1,86 @@
-![landy](https://user-images.githubusercontent.com/48876996/121569479-e179db80-ca31-11eb-8a48-9c3de9b142f3.gif)
+# 行事曆協作平台 — 前端
 
-![Landy React Template License](https://img.shields.io/github/license/Adrinlol/landy-react-template)
-![Landy React Template Release Date](https://img.shields.io/github/release-date/Adrinlol/landy-react-template)
-![Landy React TemplateStars](https://img.shields.io/github/stars/Adrinlol/landy-react-template)
-![Landy React Template Language](https://img.shields.io/github/languages/top/Adrinlol/landy-react-template)
-![Landy React Template TypeScript](https://badgen.net/npm/types/tslib)
+行事曆協作平台的前端應用，提供行程 CRUD、公開活動參加／退出、使用者搜尋與群組聊天室功能。
 
-## Free React landing page template
+**後端專案：** [meeting_API_Server](https://github.com/eruc1117/meeting_API_Server)
 
-[Landy][Landy] is an open-source React landing page template written in TypeScript, designed for developers and startups, who want to create a quick and professional landing page for their business or project.
+---
 
-This React template comes with multi-lingual support, smooth animations, set of ready to use sections and most importantly, all of the content is stored in the JSON files, so that you can manage the texts without having any prior knowledge in React.js.
+## 技術棧
 
-## Table of contents
+| 類別 | 技術 |
+|------|------|
+| 框架 | React 18 + TypeScript |
+| 樣式 | styled-components |
+| UI 元件 | Ant Design |
+| 路由 | React Router v5 |
+| 國際化 | i18next |
+| 狀態管理 | Context API（AuthContext、ScheduleContext） |
 
-- [Features](#features)
-- [Google Lighthouse](#google-lighthouse)
-  - [Performance](#performance)
-  - [Accessibility](#accessibility)
-  - [Best Practices](#best-practices)
-  - [SEO](#seo)
-- [Demo](#demo)
-- [Installation](#installation)
-- [Special Thanks](#special-thanks)
-- [Usage](#usage)
-- [License](#license)
+---
 
-## Features
+## 功能
 
-Your project will have everything you need to build a modern single-page React app:
+- **帳號系統** — 註冊、登入、修改密碼
+- **行事曆**
+  - 雙擊空白格新增活動，點擊色塊查看詳情、修改、刪除（二次確認）
+  - 開啟頁面自動載入當月資料，切換月份重新查詢
+  - 公開活動顯示藍色、私人活動顯示綠色
+- **進階搜尋**
+  - 時間範圍傳入 API 查詢
+  - 關鍵字、地點、參與人員 client-side 過濾
+  - 搜尋結果列表，點擊跳轉對應月份
+- **參與人員 autocomplete** — debounce 呼叫使用者搜尋 API，下拉選單選取
+- **群組聊天室** — 即時訊息收發
 
-- 🎁 **Modern** – Template created using the latest features of React (State management using Hooks, Code-Splitting to reduce the bundle size)
+---
 
-- 💻 **Responsive** – Highly responsive and reusable UI components, that change depending on the provided props
+## 專案結構
 
-- 🚀 **Fast** – Buttery smooth experience thanks to the implementation of best practices and no third party dependencies, resulting in <b>PERFECT</b> Google Lighthouse scores
+```
+src/
+  styles/         # 全域樣式
+  router/         # 路由（含 PrivateRoute）
+  pages/          # Home、Schedule、Chat、User、Login
+  components/     # Calendar、Chat、Login、scheduleForm、Header、Footer…
+  common/         # 共用元件：Button、Input、Table、ScrollToTop
+  contexts/       # AuthContext、ScheduleContext
+docs/
+  spec.md         # 系統規格書
+  api.md          # API 文檔
+  error-codes.md  # 錯誤代碼列表
+  issues/         # 問題紀錄
+```
 
-- 🏷 **TypeScript support** – Landy is written in TypeScript to improve the DX
+---
 
-- 🌍 **Internationalization** - Prebuilt standalone file that works in every environment and doesn't require reloading the page to translate the content
+## 開始使用
 
-- 🛸 **Routing** - Each file inside the src/pages directory will generate its own route, so you don't have to manually handle the routing
+**安裝依賴**
 
-- 🤙 **Contact Form** - Contact form written in React Hooks, with uncontrolled form validation to reduce unnecessary performance penalty. You just need to provide the endpoint
+```bash
+npm install
+```
 
-- ⚙️ **Maintenance** - All of the content is stored in the JSON files, so that you can easily manage the content of the website
+**啟動開發伺服器**
 
-## Google Lighthouse
+```bash
+npm start
+```
 
-![1](https://user-images.githubusercontent.com/48876996/121569366-c313e000-ca31-11eb-940c-187f556ff0d6.png)
+預設 proxy 至 `http://localhost:5000`（後端服務）。
 
-[Google Lighthouse][Google Lighthouse] is an open-source, automated tool for measuring the quality of web pages. Google Lighthouse audits performance, accessibility and search engine optimization of web pages.
+**建置**
 
-### Performance
+```bash
+npm run build
+```
 
-Audits for metrics like first paint and time to interactive to determine lag.
+---
 
-### Accessibility
+## 相關文件
 
-Checks for common issues that may prevent users from accessing your content.
-
-### Best Practices
-
-Looks for everything from HTTPS usage to correct image aspect ratios.
-
-### SEO 
-
-Checks for best practices to ensure your site is discoverable.
-
-
-## Demo
-
-Check the live demo here 👉️ https://landy-web.netlify.app/
-
-
-### Installation
-
-You’ll need to have Node 10.16.0 or later version on your local development machine (but it’s not required on the server). I recommend using the latest LTS version.
-
-To create a new app, you have to:
-
-Begin by cloning this repository to establish your own local copy. This process is straightforward and ensures you have all the necessary files and resources at your fingertips. You can find step-by-step instructions in this helpful article: Cloning a [repository on GitHub.com](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository#cloning-a-repository).
-
-## What's included
-
-- [antd][antd] - React UI library that contains a set of high quality components.
-- [react-awesome-reveal][react-awesome-reveal] - High performance library that adds reveal animations using the Intersection Observer API.
-- [styled-componets][styled-componets] - Variant on “CSS-in-JS”—which solves many of the problems with traditional CSS.
-- [i18next][i18next] - Internationalization-framework written in and for JavaScript.
-
-## Special thanks
-
-[whoooa][whoooa] - Use fantastic, handmade illustrations with easily changeable colors and different styles.
-
-## Usage
-
-Use it for whatever you want, and be sure to reach out to me on [Twitter](https://twitter.com/Adrinlolx) if you have any questions, or build something cool with it.
-
-## License
-
-Licensed under the MIT license.
-
-<!-- prettier-ignore-start -->
-[antd]: https://github.com/ant-design/ant-design
-[react-awesome-reveal]: https://www.npmjs.com/package/react-awesome-reveal
-[styled-componets]: https://github.com/styled-components/styled-components
-[i18next]: https://github.com/i18next/i18next
-[whoooa]: https://www.whoooa.rocks/
-[Landy]: https://www.npmjs.com/package/cra-template-adrinlol
-[Google Lighthouse]: https://developers.google.com/web/tools/lighthouse
-<!-- prettier-ignore-end -->
+- [系統規格書](./docs/spec.md)
+- [API 文檔](./docs/api.md)
+- [錯誤代碼](./docs/error-codes.md)
+- [問題紀錄](./docs/issues/README.md)

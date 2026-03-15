@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from "react";
-import { ScheduleContext } from "../../contexts/SechduleContext";
+import { ScheduleContext } from "../../contexts/ScheduleContext";
 import { AuthContext } from "../../contexts/AuthContext";
 import {
   CalendarWrapper,
@@ -56,7 +56,12 @@ export interface EventData {
   content: string;
 }
 
-interface CalendarProps {}
+interface CalendarProps {
+  filterKeyword?: string;
+  filterLocation?: string;
+  filterParticipants?: string;
+  jumpToDate?: string;
+}
 
 const initialAddForm = {
   title: "",
@@ -91,7 +96,7 @@ type MenuState = {
   width: number;
 } | null;
 
-const Calendar = (_props: CalendarProps) => {
+const Calendar = ({ filterKeyword = "", filterLocation = "", filterParticipants = "", jumpToDate = "" }: CalendarProps) => {
   const today = new Date();
   const [viewDate, setViewDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -116,6 +121,17 @@ const Calendar = (_props: CalendarProps) => {
     getSchedules(user.id, startISO, endISO).catch(() => {});
   }, [year, month, user?.id]);
 
+  // 外部跳轉日期（搜尋結果點擊）
+  useEffect(() => {
+    if (!jumpToDate) return;
+    const iso = jumpToDate.split("__")[0];
+    const d = new Date(iso);
+    if (!isNaN(d.getTime())) {
+      setViewDate(new Date(d.getFullYear(), d.getMonth(), 1));
+      setSelected(new Set([toKey(d.getFullYear(), d.getMonth(), d.getDate())]));
+    }
+  }, [jumpToDate]);
+
   // 點擊外部、滾動或按 Escape 關閉選單
   useEffect(() => {
     if (!menuState) return;
@@ -133,10 +149,17 @@ const Calendar = (_props: CalendarProps) => {
     };
   }, [menuState]);
 
-  // 依日期分組活動
+  // 依日期分組活動（套用搜尋 filter）
+  const filteredData = (tableData as any[] ?? []).filter((event) => {
+    if (filterKeyword && !event.title?.toLowerCase().includes(filterKeyword.toLowerCase())) return false;
+    if (filterLocation && !event.location?.toLowerCase().includes(filterLocation.toLowerCase())) return false;
+    if (filterParticipants && !event.participants?.toLowerCase().includes(filterParticipants.toLowerCase())) return false;
+    return true;
+  });
+
   const eventsByDate: Record<string, EventData[]> = {};
-  if (tableData) {
-    (tableData as any[]).forEach((event) => {
+  if (filteredData.length > 0) {
+    filteredData.forEach((event) => {
       if (event.startTime) {
         const date = new Date(event.startTime);
         if (!isNaN(date.getTime())) {
@@ -208,7 +231,7 @@ const Calendar = (_props: CalendarProps) => {
   const handleMenuNew = () => {
     if (!menuState) return;
     const dateStr = `${year}-${pad(month + 1)}-${pad(menuState.day)}`;
-    setAddForm({ ...initialAddForm, startDate: dateStr, endDate: dateStr });
+    setAddForm({ ...initialAddForm, startDate: dateStr, endDate: dateStr, participants: user?.username ?? "" });
     setAddFormOpen(true);
     setMenuState(null);
   };
@@ -219,20 +242,26 @@ const Calendar = (_props: CalendarProps) => {
   };
 
   const handleAddConfirm = async () => {
+    const title = addForm.title.trim();
+    if (!title) { alert("活動名稱為必填"); return; }
+    if (title.length > 100) { alert("活動名稱不得超過 100 字元"); return; }
+    if (!addForm.startDate || !addForm.startTime) { alert("請填寫開始日期與時間"); return; }
+    const endDate = addForm.endDate || addForm.startDate;
+    const endTime = addForm.endTime || "23:59";
     try {
       await createSchedule({
         user_id: Number(user.id),
-        title: addForm.title,
-        description: addForm.description || undefined,
+        title,
+        description: addForm.description.trim() || undefined,
         start_time: `${addForm.startDate}T${addForm.startTime}:00`,
-        end_time: `${addForm.endDate}T${addForm.endTime}:00`,
+        end_time: `${endDate}T${endTime}:00`,
         is_public: addForm.isPublic === "true",
-        location: addForm.location || undefined,
-        participants: addForm.participants || undefined,
+        location: addForm.location.trim() || undefined,
+        participants: addForm.participants.trim() || undefined,
       });
       setAddFormOpen(false);
     } catch (error) {
-      console.error("Failed to create schedule:", error);
+      if (process.env.NODE_ENV !== "production") console.error("Failed to create schedule:", error);
     }
   };
 
@@ -263,19 +292,24 @@ const Calendar = (_props: CalendarProps) => {
   };
 
   const handleEditConfirm = async () => {
+    const title = editForm.title.trim();
+    if (!title) { alert("活動名稱為必填"); return; }
+    if (title.length > 100) { alert("活動名稱不得超過 100 字元"); return; }
+    if (!editForm.startDate || !editForm.startTime) { alert("請填寫開始日期與時間"); return; }
+    if (!editForm.endDate || !editForm.endTime) { alert("請填寫結束日期與時間"); return; }
     try {
       await updateSchedule(editForm.Id, {
-        title: editForm.title,
-        description: editForm.description || undefined,
+        title,
+        description: editForm.description.trim() || undefined,
         start_time: `${editForm.startDate}T${editForm.startTime}:00`,
         end_time: `${editForm.endDate}T${editForm.endTime}:00`,
         is_public: editForm.isPublic === "true",
-        location: editForm.location || undefined,
-        participants: editForm.participants || undefined,
+        location: editForm.location.trim() || undefined,
+        participants: editForm.participants.trim() || undefined,
       });
       setEditFormOpen(false);
     } catch (error) {
-      console.error("Failed to update schedule:", error);
+      if (process.env.NODE_ENV !== "production") console.error("Failed to update schedule:", error);
     }
   };
 
@@ -286,7 +320,7 @@ const Calendar = (_props: CalendarProps) => {
       setPopupEvent(null);
       setConfirmDelete(false);
     } catch (error) {
-      console.error("Failed to delete schedule:", error);
+      if (process.env.NODE_ENV !== "production") console.error("Failed to delete schedule:", error);
     }
   };
 
@@ -450,7 +484,7 @@ const Calendar = (_props: CalendarProps) => {
 
               <ModalRow>
                 <ModalField>
-                  <ModalLabel>結束日期 *</ModalLabel>
+                  <ModalLabel>結束日期</ModalLabel>
                   <ModalInput
                     type="date"
                     name="endDate"
@@ -459,7 +493,7 @@ const Calendar = (_props: CalendarProps) => {
                   />
                 </ModalField>
                 <ModalField>
-                  <ModalLabel>結束時間 *</ModalLabel>
+                  <ModalLabel>結束時間（未填預設 23:59）</ModalLabel>
                   <ModalInput
                     type="time"
                     name="endTime"

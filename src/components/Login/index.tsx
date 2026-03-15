@@ -39,8 +39,27 @@ const LoginBlock = () => {
     setErrorMsg("");
     setFieldErrors({});
 
-    if (!isLogin && formData.password !== formData.passwordChk) {
-      setFieldErrors({ passwordChk: "密碼和確認密碼不同" });
+    // 前端輸入驗證
+    const newErrors: Record<string, string> = {};
+    if (!formData.account.trim() || formData.account.length < 3 || formData.account.length > 50) {
+      newErrors.account = "帳號長度需介於 3 至 50 字元";
+    }
+    if (!formData.password || formData.password.length < 6) {
+      newErrors.password = "密碼至少需要 6 個字元";
+    }
+    if (!isLogin) {
+      if (!formData.email.includes("@") || formData.email.trim().length < 5) {
+        newErrors.email = "請輸入有效的信箱格式";
+      }
+      if (!formData.username.trim()) {
+        newErrors.username = "請填寫使用者名稱";
+      }
+      if (formData.password !== formData.passwordChk) {
+        newErrors.passwordChk = "密碼和確認密碼不同";
+      }
+    }
+    if (Object.keys(newErrors).length > 0) {
+      setFieldErrors(newErrors);
       return;
     }
 
@@ -82,10 +101,10 @@ const LoginBlock = () => {
       }
 
       login(data.data.token, data.data.user);
-      history.push("/home");
+      history.push("/schedule");
 
     } catch (err) {
-      console.error("API 錯誤:", err);
+      if (process.env.NODE_ENV !== "production") console.error("API 錯誤:", err);
       setErrorMsg("伺服器錯誤，請稍後再試。");
     }
   };

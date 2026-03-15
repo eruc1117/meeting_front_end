@@ -4,6 +4,8 @@ import { MenuOutlined } from "@ant-design/icons";
 
 export const HeaderSection = styled("header")`
   padding: 1rem 0.5rem;
+  background: #0f0f11;
+  border-bottom: 1px solid #2e2e35;
 
   .ant-row-space-between {
     align-items: center;
@@ -41,7 +43,7 @@ export const Burger = styled("div")`
   display: none;
 
   svg {
-    fill: #2e186a;
+    fill: #9898aa;
   }
 `;
 
@@ -55,13 +57,18 @@ export const Menu = styled("h5")`
   font-size: 1.5rem;
   font-weight: 600;
   text-align: center;
+  color: #e8e8ee;
 `;
 
 export const CustomNavLinkSmall = styled(NavLink)`
   font-size: 1.2rem;
-  color: #18216d;
+  color: #9898aa;
   transition: color 0.2s ease-in;
   margin: 0.5rem 2rem;
+
+  &:hover {
+    color: #e8e8ee;
+  }
 
   @media only screen and (max-width: 768px) {
     margin: 1.25rem 2rem;
@@ -70,7 +77,7 @@ export const CustomNavLinkSmall = styled(NavLink)`
 
 export const Label = styled("span")`
   font-weight: 500;
-  color: #404041;
+  color: #9898aa;
   text-align: right;
   display: flex;
   justify-content: space-between;
@@ -79,17 +86,18 @@ export const Label = styled("span")`
 
 export const Outline = styled(MenuOutlined)`
   font-size: 22px;
+  color: #9898aa;
 `;
 
 export const Span = styled("span")`
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.2s ease-in-out;
 
   &:hover,
   &:active,
   &:focus {
-    color: rgb(255, 130, 92);
+    color: #ff8a65;
     text-underline-position: under;
-    text-decoration: rgb(255, 130, 92) wavy underline;
+    text-decoration: #ff8a65 wavy underline;
   }
 `;

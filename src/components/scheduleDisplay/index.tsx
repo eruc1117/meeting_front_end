@@ -12,7 +12,7 @@ import { scheduleValProps } from "../../common/types"
 import { Button } from "../../common/Button";
 import Input from "../../common/Input";
 import Table from "../../common/Table";
-import { ScheduleContext } from "../../contexts/SechduleContext";
+import { ScheduleContext } from "../../contexts/ScheduleContext";
 
 
 const initialValues: scheduleValProps = {

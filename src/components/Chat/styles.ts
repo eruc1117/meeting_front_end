@@ -6,12 +6,14 @@ export const ChatContainer = styled("div")`
   max-width: 600px;
   height: 600px;
   margin: 0 auto;
-  border: 1px solid #ddd;
+  border: 1px solid #2e2e35;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   padding: 2rem;
   align-items: center;
   justify-content: space-between;
+  background: #1a1a1f;
 
   @media only screen and (max-width: 1024px) {
     height: 500px;
@@ -26,8 +28,20 @@ export const Messages = styled("div")`
   overflow-y: auto;
   margin-bottom: 16px;
   padding: 1rem;
-  background: #f0f2f5;
+  background: #0f0f11;
   border-radius: 8px;
+  border: 1px solid #222228;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #2e2e35;
+    border-radius: 2px;
+  }
 `;
 
 
@@ -44,7 +58,7 @@ export const MetaData = styled.div<{ isSelf: boolean }>`
   justify-content: space-between;
   width: 100%;
   font-size: 12px;
-  color: #888;
+  color: #55556a;
   margin-bottom: 4px;
 `;
 
@@ -57,12 +71,16 @@ export const Time = styled.span`
 `;
 
 export const Bubble = styled.div<{ isSelf: boolean }>`
-  background: ${({ isSelf }) => (isSelf ? "#d9fdd3" : "#fffbe6")};
+  background: ${({ isSelf }) => (isSelf ? "#1e2f1e" : "#1e1e2e")};
+  color: ${({ isSelf }) => (isSelf ? "#7de8a0" : "#c8c8d8")};
+  border: 1px solid ${({ isSelf }) => (isSelf ? "#235232" : "#2a2a40")};
   padding: 0.5rem 1rem;
   border-radius: 12px;
   max-width: 80%;
   word-wrap: break-word;
   align-self: ${({ isSelf }) => (isSelf ? "flex-end" : "flex-start")};
+  font-size: 0.9rem;
+  line-height: 1.5;
 `;
 
 

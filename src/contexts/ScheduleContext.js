@@ -1,4 +1,5 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useContext } from "react";
+import { AuthContext } from "./AuthContext";
 
 export const ScheduleContext = createContext();
 
@@ -6,7 +7,8 @@ const BASE_URL = process.env.REACT_APP_BASEURL;
 
 const authHeaders = (token) => ({
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
+    "Authorization": `Bearer ${token}`,
+    "X-Requested-With": "XMLHttpRequest",
 });
 
 const mapSchedule = (element) => ({
@@ -20,14 +22,39 @@ const mapSchedule = (element) => ({
     participants: element.participants ?? "",
 });
 
+const getToken = () => {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("未登入，請重新登入");
+    return token;
+};
+
+const validateId = (id) => {
+    const num = Number(id);
+    if (!Number.isInteger(num) || num <= 0) throw new Error("無效的活動 ID");
+    return num;
+};
+
 export const ScheduleProvider = ({ children }) => {
     const [tableData, setTableData] = useState([]);
     const [error, setError] = useState(null);
+    const { logout } = useContext(AuthContext);
+
+    const handleResponse = async (response) => {
+        if (response.status === 401) {
+            logout();
+            throw new Error("登入已過期，請重新登入");
+        }
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.message || "請求失敗");
+        }
+        return data;
+    };
 
     // 查詢活動列表（POST /api/schedules/query）
     const getSchedules = async (userId, startTime, endTime) => {
         try {
-            const token = localStorage.getItem("token");
+            const token = getToken();
             const body = { user_id: Number(userId) };
             if (startTime) body.start_time = startTime;
             if (endTime) body.end_time = endTime;
@@ -38,15 +65,11 @@ export const ScheduleProvider = ({ children }) => {
                 body: JSON.stringify(body),
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || "Failed to fetch schedules");
-            }
-
+            const data = await handleResponse(response);
             const schedules = data.data?.schedule ?? [];
-            setTableData(schedules.map(mapSchedule));
-            return data;
+            const mapped = schedules.map(mapSchedule);
+            setTableData(mapped);
+            return mapped;
         } catch (err) {
             setError(err.message);
             throw err;
@@ -56,19 +79,14 @@ export const ScheduleProvider = ({ children }) => {
     // 建立活動（POST /api/schedules/create）
     const createSchedule = async (scheduleData) => {
         try {
-            const token = localStorage.getItem("token");
+            const token = getToken();
             const response = await fetch(`${BASE_URL}/api/schedules/create`, {
                 method: "POST",
                 headers: authHeaders(token),
                 body: JSON.stringify(scheduleData),
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || "Failed to create schedule");
-            }
-
+            const data = await handleResponse(response);
             setTableData((prev) => [...prev, mapSchedule(data.data)]);
             return data;
         } catch (err) {
@@ -80,21 +98,17 @@ export const ScheduleProvider = ({ children }) => {
     // 更新活動（PUT /api/schedules/update/:id）
     const updateSchedule = async (id, scheduleData) => {
         try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${BASE_URL}/api/schedules/update/${id}`, {
+            const token = getToken();
+            const safeId = validateId(id);
+            const response = await fetch(`${BASE_URL}/api/schedules/update/${safeId}`, {
                 method: "PUT",
                 headers: authHeaders(token),
                 body: JSON.stringify(scheduleData),
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || "Failed to update schedule");
-            }
-
+            const data = await handleResponse(response);
             setTableData((prev) =>
-                prev.map((s) => (s.Id === String(id) ? { ...s, ...scheduleData } : s))
+                prev.map((s) => (s.Id === String(safeId) ? { ...s, ...scheduleData } : s))
             );
             return data;
         } catch (err) {
@@ -106,19 +120,15 @@ export const ScheduleProvider = ({ children }) => {
     // 刪除活動（DELETE /api/schedules/delete/:id）
     const deleteSchedule = async (id) => {
         try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${BASE_URL}/api/schedules/delete/${id}`, {
+            const token = getToken();
+            const safeId = validateId(id);
+            const response = await fetch(`${BASE_URL}/api/schedules/delete/${safeId}`, {
                 method: "DELETE",
                 headers: authHeaders(token),
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || "Failed to delete schedule");
-            }
-
-            setTableData((prev) => prev.filter((s) => s.Id !== String(id)));
+            const data = await handleResponse(response);
+            setTableData((prev) => prev.filter((s) => s.Id !== String(safeId)));
             return data;
         } catch (err) {
             setError(err.message);
@@ -129,19 +139,14 @@ export const ScheduleProvider = ({ children }) => {
     // 參加公開活動（POST /api/schedules/attend/:id）
     const attendSchedule = async (id) => {
         try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${BASE_URL}/api/schedules/attend/${id}`, {
+            const token = getToken();
+            const safeId = validateId(id);
+            const response = await fetch(`${BASE_URL}/api/schedules/attend/${safeId}`, {
                 method: "POST",
                 headers: authHeaders(token),
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || "Failed to attend schedule");
-            }
-
-            return data;
+            return await handleResponse(response);
         } catch (err) {
             setError(err.message);
             throw err;
@@ -151,19 +156,14 @@ export const ScheduleProvider = ({ children }) => {
     // 退出公開活動（DELETE /api/schedules/attend/:id）
     const leaveSchedule = async (id) => {
         try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${BASE_URL}/api/schedules/attend/${id}`, {
+            const token = getToken();
+            const safeId = validateId(id);
+            const response = await fetch(`${BASE_URL}/api/schedules/attend/${safeId}`, {
                 method: "DELETE",
                 headers: authHeaders(token),
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || "Failed to leave schedule");
-            }
-
-            return data;
+            return await handleResponse(response);
         } catch (err) {
             setError(err.message);
             throw err;

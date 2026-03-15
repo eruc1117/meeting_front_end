@@ -1,41 +1,64 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useContext } from "react";
+import { AuthContext } from "./AuthContext";
 
 export const UserContext = createContext();
+
+const BASE_URL = process.env.REACT_APP_BASEURL;
+
+const authHeaders = (token) => ({
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}`,
+    "X-Requested-With": "XMLHttpRequest",
+});
+
+const getToken = () => {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("未登入，請重新登入");
+    return token;
+};
+
+const validateId = (id) => {
+    const num = Number(id);
+    if (!Number.isInteger(num) || num <= 0) throw new Error("無效的 ID");
+    return num;
+};
 
 export const UserProvider = ({ children }) => {
     const [tableData, setTableData] = useState([]);
     const [error, setError] = useState(null);
+    const { logout } = useContext(AuthContext);
 
     useEffect(() => {
         setTableData([
             { Id: "1", title: "小明", content: "ming@example.com", startTime: "0912-345-678", endTime: "0987-654-321" },
-            { Id: "1",title: "小美", content: "mei@example.com", startTime: "0987-654-321", endTime: "0987-654-321" },
+            { Id: "2", title: "小美", content: "mei@example.com", startTime: "0987-654-321", endTime: "0987-654-321" },
         ]);
     }, []);
 
-
+    const handleResponse = async (response) => {
+        if (response.status === 401) {
+            logout();
+            throw new Error("登入已過期，請重新登入");
+        }
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.message || "請求失敗");
+        }
+        return data;
+    };
 
     // Create a new schedule event
     const createSchedule = async (scheduleData) => {
         try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${process.env.REACT_APP_BASEURL}/api/schedules`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(scheduleData)
+            const token = getToken();
+            const response = await fetch(`${BASE_URL}/api/schedules/create`, {
+                method: "POST",
+                headers: authHeaders(token),
+                body: JSON.stringify(scheduleData),
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to create schedule');
-            }
-
-            // Update table data with new schedule
-            setTableData(prev => [...prev, data.data]);
+            const data = await handleResponse(response);
+            setTableData((prev) => [...prev, data.data]);
             return data;
         } catch (err) {
             setError(err.message);
@@ -44,36 +67,28 @@ export const UserProvider = ({ children }) => {
     };
 
     // Get all schedules for the user
-    const getSchedules = async () => {
+    const getSchedules = async (userId) => {
         try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${process.env.REACT_APP_BASEURL}/api/schedules`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            const token = getToken();
+            const response = await fetch(`${BASE_URL}/api/schedules/query`, {
+                method: "POST",
+                headers: authHeaders(token),
+                body: JSON.stringify({ user_id: Number(userId) }),
             });
 
-            const data = await response.json();
-
-            console.log("data ---> ", data.data);
-
-
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to fetch schedules');
-            }
-
-            const displayData = data.data.map((element) => {
-                const returnData = {};
-                returnData["Id"] = element.id;
-                returnData["title"] = element.title;
-                returnData["content"] = element.description;
-                returnData["startTime"] = element.start_time;
-                returnData["endTime"] = element.end_time;
-
-                return returnData;
-            }) 
-            if (data.data.length > 0) {
+            const data = await handleResponse(response);
+            const schedules = data.data?.schedule ?? [];
+            const displayData = schedules.map((element) => ({
+                Id: String(element.id),
+                title: element.title,
+                content: element.description ?? "",
+                startTime: element.start_time,
+                endTime: element.end_time,
+                isPublic: element.is_public ?? false,
+                location: element.location ?? "",
+                participants: element.participants ?? "",
+            }));
+            if (displayData.length > 0) {
                 setTableData(displayData);
             }
             return data;
@@ -86,26 +101,20 @@ export const UserProvider = ({ children }) => {
     // Update a schedule event
     const updateSchedule = async (id, scheduleData) => {
         try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${process.env.REACT_APP_BASEURL}/api/schedules/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(scheduleData)
+            const token = getToken();
+            const safeId = validateId(id);
+            const response = await fetch(`${BASE_URL}/api/schedules/update/${safeId}`, {
+                method: "PUT",
+                headers: authHeaders(token),
+                body: JSON.stringify(scheduleData),
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to update schedule');
-            }
-
-            // Update the table data with the modified schedule
-            setTableData(prev => prev.map(schedule =>
-                schedule.id === id ? { ...schedule, ...scheduleData } : schedule
-            ));
+            const data = await handleResponse(response);
+            setTableData((prev) =>
+                prev.map((schedule) =>
+                    schedule.Id === String(safeId) ? { ...schedule, ...scheduleData } : schedule
+                )
+            );
             return data;
         } catch (err) {
             setError(err.message);
@@ -116,22 +125,15 @@ export const UserProvider = ({ children }) => {
     // Delete a schedule event
     const deleteSchedule = async (id) => {
         try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${process.env.REACT_APP_BASEURL}/api/schedules/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            const token = getToken();
+            const safeId = validateId(id);
+            const response = await fetch(`${BASE_URL}/api/schedules/delete/${safeId}`, {
+                method: "DELETE",
+                headers: authHeaders(token),
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to delete schedule');
-            }
-
-            // Remove the deleted schedule from table data
-            setTableData(prev => prev.filter(schedule => schedule.id !== id));
+            const data = await handleResponse(response);
+            setTableData((prev) => prev.filter((schedule) => schedule.Id !== String(safeId)));
             return data;
         } catch (err) {
             setError(err.message);
@@ -146,7 +148,7 @@ export const UserProvider = ({ children }) => {
             createSchedule,
             getSchedules,
             updateSchedule,
-            deleteSchedule
+            deleteSchedule,
         }}>
             {children}
         </UserContext.Provider>

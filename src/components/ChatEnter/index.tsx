@@ -19,16 +19,16 @@ const ChatEnterBlock = () => {
     <ChatContainer>
 
       <Row justify="center" align="middle" style={{ flexDirection: "column" }}>
-        <Col lg={12} md={12} sm={24} xs={24}>
+        <Col lg={24} md={24} sm={24} xs={24}>
           <Slide direction="right" triggerOnce>
             <FormGroup autoComplete="off">
               <Row gutter={[16, 16]} justify="center" align="middle">
                 <Col lg={24} md={24} sm={24} xs={24}>
                   <Input
                     type="text"
-                    name="name"
-                    labName="活動"
-                    placeholder="Name"
+                    name="username"
+                    labName="使用者帳號"
+                    placeholder="請輸入使用者帳號"
                     value={""}
                     onChange={function () { }}
                   />

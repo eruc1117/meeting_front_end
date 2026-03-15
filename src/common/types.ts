@@ -1,4 +1,5 @@
 import { TFunction } from "react-i18next";
+
 export interface ContainerProps {
   border?: boolean;
   children: React.ReactNode;
@@ -8,6 +9,7 @@ export interface ButtonProps {
   strColor?: string;
   bgColor?: string;
   name?: string;
+  type?: "button" | "submit" | "reset";
   children: React.ReactNode;
   onClick?: () => void;
 }
@@ -31,6 +33,7 @@ export interface InputProps {
       | React.ChangeEvent<HTMLTextAreaElement>
   ) => void;
 }
+
 export interface validateProps {
   name: string;
   message: string;
@@ -45,22 +48,25 @@ export interface scheduleValProps {
   eventEndDate: string;
   eventEndTime: string;
   eventContent: string;
+  eventPlace: string;
+  eventPublic: string;
+  eventParticipants: string;
 }
-
 
 export interface userValProps {
   account: string;
-  name: string;
-  group: string;
+  password: string;
+  nickname: string;
+  email: string;
 }
 
+export interface FormContainerProps {
+  title: string;
+  content: string;
+  id: string;
+  t: TFunction;
+}
 
-export interface scheduleValProps {
-  eventID: string;
-  eventName: string;
-  eventStartDate: string;
-  eventStartTime: string;
-  eventEndDate: string;
-  eventEndTime: string;
-  eventContent: string;
+export interface InputTypeProps {
+  type: string;
 }

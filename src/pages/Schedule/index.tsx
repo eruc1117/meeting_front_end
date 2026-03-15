@@ -1,5 +1,5 @@
 import { lazy } from "react";
-import { ScheduleProvider } from "../../contexts/SechduleContext";
+import { ScheduleProvider } from "../../contexts/ScheduleContext";
 import ContactContent from "../../content/Schedule.json";
 
 
@@ -20,7 +20,6 @@ const Schedule = () => {
           title={ContactContent.title}
           content={ContactContent.text}
           id="contact" />
-        <ScheduleDisplay />
       </ScheduleProvider>
     </Container>
   );

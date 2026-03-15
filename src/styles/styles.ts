@@ -27,27 +27,33 @@ export const Styles = createGlobalStyle`
         padding:0;
         border: 0;
         outline: 0;
-        background: #fff;
+        background: #0f0f11;
         overflow-x: hidden;
     }
 
     a:hover {
-        color: #18216d;
+        color: #9a8ef5;
     }
 
     input,
     textarea {
-        border-radius: 4px;
-        border: 0;
-        background: rgb(241, 242, 243);
-        transition: all 0.3s ease-in-out;  
+        border-radius: 6px;
+        border: 1px solid #2e2e35;
+        background: #1a1a1f;
+        color: #e8e8ee;
+        transition: all 0.2s ease-in-out;
         outline: none;
-        width: 100%;  
+        width: 100%;
         padding: 1rem 1.25rem;
 
+        ::placeholder {
+            color: #55556a;
+        }
+
         :focus-within {
-            background: none;
-            box-shadow: #2e186a 0px 0px 0px 1px;
+            background: #242429;
+            border-color: #7c6af2;
+            box-shadow: 0 0 0 2px rgba(124, 106, 242, 0.15);
         }
     }
 
@@ -58,22 +64,22 @@ export const Styles = createGlobalStyle`
     h5,
     h6 {
         font-family: 'Motiva Sans Bold', serif;
-        color: #18216d;
+        color: #e8e8ee;
         font-size: 56px;
         line-height: 1.18;
 
         @media only screen and (max-width: 890px) {
           font-size: 47px;
         }
-      
+
         @media only screen and (max-width: 414px) {
           font-size: 32px;
         }
     }
 
     p {
-        color: #18216d;
-        font-size: 21px;        
+        color: #9898aa;
+        font-size: 21px;
         line-height: 1.41;
     }
 
@@ -84,13 +90,13 @@ export const Styles = createGlobalStyle`
     a {
         text-decoration: none;
         outline: none;
-        color: #2E186A;
+        color: #9a8ef5;
 
         :hover {
-            color: #2e186a;
+            color: #b8b0f8;
         }
     }
-    
+
     *:focus {
         outline: none;
     }
@@ -104,9 +110,30 @@ export const Styles = createGlobalStyle`
         flex-direction: column;
         text-align: left;
         padding-top: 1.5rem;
+        background: #1a1a1f;
     }
 
     .ant-drawer-content-wrapper {
         width: 300px !important;
+    }
+
+    .ant-drawer-content {
+        background: #1a1a1f;
+    }
+
+    .ant-drawer-header {
+        background: #1a1a1f;
+        border-bottom: 1px solid #2e2e35;
+    }
+
+    .ant-drawer-title {
+        color: #e8e8ee;
+    }
+
+    .ant-drawer-close {
+        color: #9898aa;
+        &:hover {
+            color: #e8e8ee;
+        }
     }
 `;

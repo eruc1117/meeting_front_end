@@ -75,9 +75,14 @@ export const useForm = <T extends Record<string, any>>(
     }));
   };
 
+  const setValues = (values: T) => {
+    setFormState((prev) => ({ ...prev, values }));
+  };
+
   return {
     handleChange,
     handleSubmit,
+    setValues,
     values: formState.values,
     errors: formState.errors,
   };

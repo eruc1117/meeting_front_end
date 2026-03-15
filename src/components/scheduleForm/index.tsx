@@ -8,10 +8,37 @@ import { scheduleValProps } from "../../common/types"
 import { Button } from "../../common/Button";
 import Block from "../Block";
 import Input from "../../common/Input";
-import { ScheduleInputContainer, FormGroup, Span, ButtonContainer } from "./styles";
-import { useContext } from "react";
-import { ScheduleContext } from "../../contexts/SechduleContext";
+import {
+  ScheduleInputContainer,
+  FormGroup,
+  Span,
+  ButtonContainer,
+  SelectContainer,
+  SelectLabel,
+  StyledSelect,
+  SearchRow,
+  SearchInput,
+  SearchButton,
+  AdvancedToggle,
+  AdvancedPanel,
+  AdvancedGrid,
+  AdvancedField,
+  AdvancedLabel,
+  AdvancedInput,
+  AutocompleteWrapper,
+  AutocompleteDropdown,
+  AutocompleteItem,
+  ResultsList,
+  ResultsHeader,
+  ResultsClose,
+  ResultItem,
+  ResultTitle,
+  ResultMeta,
+} from "./styles";
+import { useContext, useState, useEffect, useRef } from "react";
+import { ScheduleContext } from "../../contexts/ScheduleContext";
 import { AuthContext } from "../../contexts/AuthContext";
+import Calendar from "../Calendar";
 
 interface UseFormReturn {
   values: scheduleValProps;
@@ -28,12 +55,26 @@ const initialValues: scheduleValProps = {
   eventStartTime: "",
   eventEndDate: "",
   eventEndTime: "",
-  eventContent: ""
+  eventContent: "",
+  eventPlace: "",
+  eventPublic: "false",
+  eventParticipants: "",
 };
+
+const BASE_URL = process.env.REACT_APP_BASEURL;
+
+const pad = (n: number) => String(n).padStart(2, "0");
+const formatResultTime = (iso: string) => {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+interface UserSuggestion { id: number; username: string; email: string; }
 
 const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
   const { values, errors, handleChange, handleSubmit, setValues } = useForm(scheduleVal, initialValues) as UseFormReturn;
-  const { createSchedule, updateSchedule, deleteSchedule, getSchedules } = useContext(ScheduleContext);
+  const { tableData, createSchedule, updateSchedule, deleteSchedule, getSchedules, attendSchedule, leaveSchedule } = useContext(ScheduleContext);
   const { user } = useContext(AuthContext);
 
   const ValidationType = ({ type }: ScheduleInputTypeProps) => {
@@ -41,36 +82,30 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
     return <Span>{ErrorMessage}</Span>;
   };
 
+  const buildScheduleBody = () => ({
+    title: values.eventName,
+    description: values.eventContent || undefined,
+    start_time: `${values.eventStartDate}T${values.eventStartTime}:00`,
+    end_time: `${values.eventEndDate}T${values.eventEndTime}:00`,
+    is_public: values.eventPublic === "true",
+    location: values.eventPlace || undefined,
+    participants: values.eventParticipants || undefined,
+  });
+
   const handleCreateSchedule = async () => {
     try {
-      const scheduleData = {
-        user_id: user.id,
-        title: values.eventName,
-        description: values.eventContent,
-        start_time: `${values.eventStartDate}T${values.eventStartTime}`,
-        end_time: `${values.eventEndDate}T${values.eventEndTime}`
-      };
-
-      console.log("scheduleData ---> ", scheduleData);
-
-      await createSchedule(scheduleData);
-      setValues(initialValues);
+      const result = await createSchedule({ user_id: Number(user.id), ...buildScheduleBody() });
+      setValues({ ...initialValues, eventID: String(result.data.id) });
     } catch (error) {
-      console.error('Failed to create schedule:', error);
+      console.error("Failed to create schedule:", error);
     }
   };
 
   const handleUpdateSchedule = async () => {
     try {
-      const scheduleData = {
-        title: values.eventName,
-        description: values.eventContent,
-        start_time: `${values.eventStartDate}T${values.eventStartTime}`,
-        end_time: `${values.eventEndDate}T${values.eventEndTime}`
-      };
-      await updateSchedule(values.eventID, scheduleData);
+      await updateSchedule(values.eventID, buildScheduleBody());
     } catch (error) {
-      console.error('Failed to update schedule:', error);
+      console.error("Failed to update schedule:", error);
     }
   };
 
@@ -79,9 +114,107 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
       await deleteSchedule(Number(values.eventID));
       setValues(initialValues);
     } catch (error) {
-      console.error('Failed to delete schedule:', error);
+      console.error("Failed to delete schedule:", error);
     }
   };
+
+  const handleAttendSchedule = async () => {
+    try {
+      await attendSchedule(Number(values.eventID));
+    } catch (error) {
+      console.error("Failed to attend schedule:", error);
+    }
+  };
+
+  const handleLeaveSchedule = async () => {
+    try {
+      await leaveSchedule(Number(values.eventID));
+    } catch (error) {
+      console.error("Failed to leave schedule:", error);
+    }
+  };
+
+  const [keyword, setKeyword] = useState("");
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [advStartDate, setAdvStartDate] = useState("");
+  const [advEndDate, setAdvEndDate] = useState("");
+  const [advLocation, setAdvLocation] = useState("");
+  const [activeKeyword, setActiveKeyword] = useState("");
+  const [activeLocation, setActiveLocation] = useState("");
+  const [activeParticipants, setActiveParticipants] = useState("");
+  const [snapshotResults, setSnapshotResults] = useState<any[]>([]);
+  const [showResults, setShowResults] = useState(false);
+  const [resultsCollapsed, setResultsCollapsed] = useState(false);
+  const [jumpDate, setJumpDate] = useState("");
+
+  // 參與人員 autocomplete
+  const [participantInput, setParticipantInput] = useState("");
+  const [participantSuggestions, setParticipantSuggestions] = useState<UserSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const skipNextFetchRef = useRef(false);
+
+  useEffect(() => {
+    if (!participantInput.trim()) {
+      setParticipantSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      if (skipNextFetchRef.current) {
+        skipNextFetchRef.current = false;
+        return;
+      }
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${BASE_URL}/api/users/search?q=${encodeURIComponent(participantInput)}`, {
+          headers: { Authorization: `Bearer ${token}`, "X-Requested-With": "XMLHttpRequest" },
+        });
+        const data = await res.json();
+        const users: UserSuggestion[] = data.data?.users ?? [];
+        setParticipantSuggestions(users);
+        setShowSuggestions(users.length > 0);
+      } catch {}
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [participantInput]);
+
+  const handleSelectParticipant = (u: UserSuggestion) => {
+    skipNextFetchRef.current = true;
+    setParticipantInput(u.username);
+    setShowSuggestions(false);
+  };
+
+  const handleSearch = async () => {
+    const startISO = advStartDate ? `${advStartDate}T00:00:00` : undefined;
+    const endISO = advEndDate ? `${advEndDate}T23:59:59` : undefined;
+    const currentKeyword = keyword;
+    const currentLocation = advLocation;
+    const currentParticipants = participantInput;
+    try {
+      const mapped: any[] = await getSchedules(user?.id, startISO, endISO) ?? [];
+      const filtered = mapped.filter((event) => {
+        if (currentKeyword && !event.title?.toLowerCase().includes(currentKeyword.toLowerCase())) return false;
+        if (currentLocation && !event.location?.toLowerCase().includes(currentLocation.toLowerCase())) return false;
+        if (currentParticipants && !event.participants?.toLowerCase().includes(currentParticipants.toLowerCase())) return false;
+        return true;
+      });
+      setSnapshotResults(filtered);
+    } catch {
+      setSnapshotResults([]);
+    }
+    setActiveKeyword(currentKeyword);
+    setActiveLocation(currentLocation);
+    setActiveParticipants(currentParticipants);
+    setShowResults(true);
+    setResultsCollapsed(false);
+  };
+
+  const handleResultClick = (event: any) => {
+    setJumpDate(`${event.startTime}__${Date.now()}`);
+    setResultsCollapsed(true);
+  };
+
+
 
   return (
     <ScheduleInputContainer id={id}>
@@ -92,171 +225,120 @@ const ScheduleForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
           </Slide>
         </Col>
 
-        <Col lg={12} md={12} sm={24} xs={24}>
-          <Slide direction="right" triggerOnce>
-            <FormGroup autoComplete="off" onSubmit={handleSubmit}>
-              <Row gutter={[16, 16]} justify="center" align="middle">
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="text"
-                    name="group"
-                    labName="群組"
-                    placeholder="Group"
-                    value={values.eventID}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="eventID" />
-                </Col>
-
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="text"
-                    name="member"
-                    labName="成員"
-                    placeholder="Member"
-                    value={values.eventID}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="eventID" />
-                </Col>
-
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="date"
-                    name="eventStartDate"
-                    labName="活動開始日期"
-                    placeholder="Start Date"
-                    value={values.eventStartDate}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="eventStartDate" />
-                </Col>
-
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="time"
-                    name="eventStartTime"
-                    labName="活動開始時間"
-                    placeholder="Start Time"
-                    value={values.eventStartTime}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="eventStartTime" />
-                </Col>
-
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="date"
-                    name="eventEndDate"
-                    labName="活動結束日期"
-                    placeholder="End Date"
-                    value={values.eventEndDate}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="eventEndDate" />
-                </Col>
-
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="time"
-                    name="eventEndTime"
-                    labName="活動結束時間"
-                    placeholder="End Time"
-                    value={values.eventEndTime}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="eventEndTime" />
-                </Col>
-
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="text"
-                    name="eventName"
-                    labName="活動名稱"
-                    placeholder="Event Name"
-                    value={values.eventName}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="eventName" />
-                </Col>
-
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="text"
-                    name="eventContent"
-                    labName="活動內容"
-                    placeholder="Event Content"
-                    value={values.eventContent}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="eventContent" />
-                </Col>
-
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="text"
-                    name="eventPlace"
-                    labName="活動地點"
-                    placeholder="Event Place"
-                    value={values.eventContent}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="eventContent" />
-                </Col>
-
-                <Col xs={24} sm={12}>
-                  <Input
-                    type="text"
-                    name="eventPublic"
-                    labName="是否公開"
-                    placeholder=""
-                    value={values.eventContent}
-                    onChange={handleChange}
-                  />
-                  <ValidationType type="eventContent" />
-                </Col>
-
-
-
-                <Col span={24}>
-                  <Row gutter={[16, 16]} justify="center" align="middle">
-                    <Col lg={8} md={8} sm={24} xs={24}>
-                      <ButtonContainer style={{ textAlign: "center" }}>
-                        <Button onClick={handleCreateSchedule}>{t("新增")}</Button>
-                      </ButtonContainer>
-                    </Col>
-                    <Col lg={8} md={8} sm={24} xs={24}>
-                      <ButtonContainer style={{ textAlign: "center" }}>
-                        <Button onClick={handleUpdateSchedule}>{t("修改")}</Button>
-                      </ButtonContainer>
-                    </Col>
-                    <Col lg={8} md={8} sm={24} xs={24}>
-                      <ButtonContainer style={{ textAlign: "center" }}>
-                        <Button onClick={handleDeleteSchedule}>{t("刪除")}</Button>
-                      </ButtonContainer>
-                    </Col>
-                  </Row>
-                  <Row gutter={[16, 16]} justify="center" align="middle">
-                    <Col span={24}>
-                      <Row gutter={[16, 16]} justify="center" align="middle">
-                        <Col lg={12} md={12} sm={24} xs={24}>
-                          <ButtonContainer style={{ textAlign: "center" }}>
-                            <Button onClick={getSchedules}>{t("查詢事件")}</Button>
-                          </ButtonContainer>
-                        </Col>
-                        <Col lg={12} md={12} sm={24} xs={24}>
-                          <ButtonContainer style={{ textAlign: "center" }}>
-                            <Button name="submit">{t("查詢空閒")}</Button>
-                          </ButtonContainer>
-                        </Col>
-                      </Row>
-                    </Col>
-                  </Row>
-                </Col>
-              </Row>
-            </FormGroup>
-          </Slide>
+        <Col lg={24} md={24} sm={24} xs={24} style={{ display: "flex", justifyContent: "center" }}>
+          <SearchRow>
+            <SearchInput
+              type="text"
+              placeholder="搜尋活動主旨..."
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            />
+            <AdvancedToggle onClick={() => setShowAdvanced((v) => !v)}>
+              {showAdvanced ? "收起" : "進階搜尋"}
+            </AdvancedToggle>
+            <SearchButton onClick={handleSearch}>搜尋</SearchButton>
+          </SearchRow>
         </Col>
+
+        {showAdvanced && (
+          <Col lg={24} md={24} sm={24} xs={24} style={{ display: "flex", justifyContent: "center" }}>
+            <AdvancedPanel>
+              <AdvancedGrid>
+                <AdvancedField>
+                  <AdvancedLabel>開始時間（起）</AdvancedLabel>
+                  <AdvancedInput
+                    type="date"
+                    value={advStartDate}
+                    onChange={(e) => setAdvStartDate(e.target.value)}
+                  />
+                </AdvancedField>
+                <AdvancedField>
+                  <AdvancedLabel>開始時間（迄）</AdvancedLabel>
+                  <AdvancedInput
+                    type="date"
+                    value={advEndDate}
+                    onChange={(e) => setAdvEndDate(e.target.value)}
+                  />
+                </AdvancedField>
+                <AdvancedField>
+                  <AdvancedLabel>地點</AdvancedLabel>
+                  <AdvancedInput
+                    type="text"
+                    placeholder="搜尋地點..."
+                    value={advLocation}
+                    onChange={(e) => setAdvLocation(e.target.value)}
+                  />
+                </AdvancedField>
+                <AdvancedField>
+                  <AdvancedLabel>參與人員</AdvancedLabel>
+                  <AutocompleteWrapper>
+                    <AdvancedInput
+                      type="text"
+                      placeholder="輸入名稱或信箱..."
+                      value={participantInput}
+                      onChange={(e) => setParticipantInput(e.target.value)}
+                      onFocus={() => { if (participantSuggestions.length > 0) setShowSuggestions(true); }}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                    />
+                    {showSuggestions && (
+                      <AutocompleteDropdown>
+                        {participantSuggestions.map((u) => (
+                          <AutocompleteItem key={u.id} onMouseDown={() => handleSelectParticipant(u)}>
+                            {u.username}<span>{u.email}</span>
+                          </AutocompleteItem>
+                        ))}
+                      </AutocompleteDropdown>
+                    )}
+                  </AutocompleteWrapper>
+                </AdvancedField>
+              </AdvancedGrid>
+            </AdvancedPanel>
+          </Col>
+        )}
+
+        {showResults && (
+          <Col lg={24} md={24} sm={24} xs={24} style={{ display: "flex", justifyContent: "center" }}>
+            <ResultsList>
+              <ResultsHeader>
+                <span
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setResultsCollapsed((v) => !v)}
+                >
+                  {resultsCollapsed ? "▶" : "▼"} 找到 {snapshotResults.length} 筆結果
+                </span>
+                <ResultsClose onClick={() => setShowResults(false)}>✕</ResultsClose>
+              </ResultsHeader>
+              {!resultsCollapsed && (
+                snapshotResults.length === 0 ? (
+                  <ResultItem style={{ cursor: "default" }}>
+                    <ResultMeta>沒有符合條件的活動</ResultMeta>
+                  </ResultItem>
+                ) : (
+                  snapshotResults.map((event: any, i: number) => (
+                    <ResultItem key={i} onClick={() => handleResultClick(event)}>
+                      <ResultTitle>{event.title}</ResultTitle>
+                      <ResultMeta>
+                        {formatResultTime(event.startTime)}
+                        {event.location ? ` · ${event.location}` : ""}
+                      </ResultMeta>
+                    </ResultItem>
+                  ))
+                )
+              )}
+            </ResultsList>
+          </Col>
+        )}
+
+        <Col lg={24} md={24} sm={24} xs={24} style={{ display: "flex", justifyContent: "center" }}>
+          <Calendar
+            filterKeyword={activeKeyword}
+            filterLocation={activeLocation}
+            filterParticipants={activeParticipants}
+            jumpToDate={jumpDate}
+          />
+        </Col>
+
       </Row>
     </ScheduleInputContainer>
   );

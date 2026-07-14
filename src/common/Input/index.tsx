@@ -4,7 +4,7 @@ import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import { Container, InputWrapper, StyledInput, ToggleButton, InputLabel } from "./styles";
 import { InputProps } from "../types";
 
-const Input = ({ labName, name, type, placeholder, value, onChange, t }: InputProps) => {
+const Input = ({ labName, name, type, placeholder, value, onChange, onKeyDown, t }: InputProps) => {
   const [visible, setVisible] = useState(false);
   const isPassword = type === "password";
 
@@ -19,6 +19,7 @@ const Input = ({ labName, name, type, placeholder, value, onChange, t }: InputPr
           id={name}
           value={value}
           onChange={onChange}
+          onKeyDown={onKeyDown}
         />
         {isPassword && (
           <ToggleButton

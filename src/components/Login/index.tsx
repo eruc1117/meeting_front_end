@@ -1,7 +1,7 @@
 import { withTranslation } from "react-i18next";
 import React, { useState, useContext } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
-import { LoginContainer, StyledRow, FormWrapper, Title, ErrorMsg, ErrorText, StyledInput, StyledButton, SwitchText, SwitchLink } from "./styles";
+import { LoginContainer, StyledRow, FormWrapper, Title, ErrorMsg, ErrorText, StyledInput, StyledPassword, StyledButton, SwitchText, SwitchLink } from "./styles";
 import { useHistory } from "react-router-dom";
 
 const BASE_URL = process.env.REACT_APP_BASEURL;
@@ -12,6 +12,7 @@ const ERROR_FIELD_MAP: Record<string, string> = {
   E009_PASSWORD_NOT_SAME: "passwordChk",
   E008_ACCOUNT_NOT_EXIST: "account",
   E003_INVALID_CREDENTIALS: "password",
+  E013_WEAK_PASSWORD: "password",
 };
 
 const LoginBlock = () => {
@@ -44,10 +45,19 @@ const LoginBlock = () => {
     if (!formData.account.trim() || formData.account.length < 3 || formData.account.length > 50) {
       newErrors.account = "帳號長度需介於 3 至 50 字元";
     }
-    if (!formData.password || formData.password.length < 6) {
-      newErrors.password = "密碼至少需要 6 個字元";
+    if (!formData.password) {
+      newErrors.password = "請輸入密碼";
     }
     if (!isLogin) {
+      if (
+        formData.password &&
+        (formData.password.length < 8 ||
+          !/[A-Z]/.test(formData.password) ||
+          !/[a-z]/.test(formData.password) ||
+          !/[0-9]/.test(formData.password))
+      ) {
+        newErrors.password = "密碼至少需要 8 個字元，並包含大小寫英文及數字";
+      }
       if (!formData.email.includes("@") || formData.email.trim().length < 5) {
         newErrors.email = "請輸入有效的信箱格式";
       }
@@ -139,7 +149,9 @@ const LoginBlock = () => {
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
+                status={fieldErrors.username ? "error" : ""}
               />
+              <ErrorText>{fieldErrors.username}</ErrorText>
             </>
           )}
 
@@ -152,7 +164,7 @@ const LoginBlock = () => {
           />
           <ErrorText>{fieldErrors.account}</ErrorText>
 
-          <StyledInput.Password
+          <StyledPassword
             placeholder="密碼"
             name="password"
             value={formData.password}
@@ -163,7 +175,7 @@ const LoginBlock = () => {
 
           {!isLogin && (
             <>
-              <StyledInput.Password
+              <StyledPassword
                 placeholder="確認密碼"
                 name="passwordChk"
                 value={formData.passwordChk}

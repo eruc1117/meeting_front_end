@@ -3,9 +3,9 @@ import styled from "styled-components";
 
 export const ChatContainer = styled("div")`
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;
   height: 600px;
-  margin: 0 auto;
+  margin: 3rem auto 0;
   border: 1px solid #2e2e35;
   border-radius: 12px;
   display: flex;
@@ -18,6 +18,7 @@ export const ChatContainer = styled("div")`
   @media only screen and (max-width: 1024px) {
     height: 500px;
     padding: 1rem;
+    margin-top: 2rem;
   }
 `;
 

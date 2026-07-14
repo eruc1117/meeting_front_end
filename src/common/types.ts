@@ -12,6 +12,8 @@ export interface ButtonProps {
   type?: "button" | "submit" | "reset";
   children: React.ReactNode;
   onClick?: () => void;
+  disabled?: boolean;
+  style?: React.CSSProperties;
 }
 
 export interface SvgIconProps {
@@ -27,11 +29,16 @@ export interface InputProps {
   t: TFunction;
   type?: string;
   value?: string;
-  onChange: (
-    event:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLTextAreaElement>
-  ) => void;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
+}
+
+export interface TextAreaProps {
+  name: string;
+  placeholder: string;
+  t: TFunction;
+  value?: string;
+  onChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
 export interface validateProps {

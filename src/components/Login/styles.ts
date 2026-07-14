@@ -78,6 +78,34 @@ export const StyledInput = styled(Input)`
   }
 `;
 
+export const StyledPassword = styled(Input.Password)`
+  margin-bottom: 16px;
+  background: #242429 !important;
+  border: 1px solid #2e2e35 !important;
+  border-radius: 8px !important;
+
+  &:hover {
+    border-color: #44444f !important;
+  }
+
+  &.ant-input-affix-wrapper-focused {
+    border-color: #7c6af2 !important;
+    box-shadow: 0 0 0 2px rgba(124, 106, 242, 0.15) !important;
+  }
+
+  input {
+    background: #242429 !important;
+    color: #e8e8ee !important;
+    &::placeholder {
+      color: #55556a !important;
+    }
+  }
+
+  .ant-input-password-icon {
+    color: #55556a !important;
+  }
+`;
+
 export const StyledButton = styled(Button)`
   width: 100%;
   margin-top: 8px;

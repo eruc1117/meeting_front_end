@@ -1,8 +1,8 @@
 import { withTranslation } from "react-i18next";
 import { StyledTextArea, StyledContainer, Label } from "./styles";
-import { InputProps } from "../types";
+import { TextAreaProps } from "../types";
 
-const TextArea = ({ name, placeholder, onChange, t }: InputProps) => (
+const TextArea = ({ name, placeholder, onChange, t }: TextAreaProps) => (
   <StyledContainer>
     <Label htmlFor={name}>{t(name)}</Label>
     <StyledTextArea

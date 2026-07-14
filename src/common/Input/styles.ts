@@ -11,10 +11,14 @@ export const Container = styled("div")`
 export const InputLabel = styled("label")`
   white-space: nowrap;
   flex-shrink: 0;
-  width: 5rem;
+  min-width: 5rem;
   text-align: right;
   text-transform: capitalize;
   color: #9898aa;
+
+  &:empty {
+    display: none;
+  }
 `;
 
 export const InputWrapper = styled("div")`

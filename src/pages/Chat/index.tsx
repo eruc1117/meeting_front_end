@@ -1,22 +1,29 @@
-import { lazy } from "react";
-import Table from "../../common/Table"; // 路徑改成你的 
-import { Row, Col } from "antd";
+import React, { lazy, useState } from "react";
 import ChatBlock from "../../components/Chat";
 import ChatEnterBlock from "../../components/ChatEnter";
 
-
-import ContactContent from "../../content/ContactContent.json";
 const Container = lazy(() => import("../../common/Container"));
 const ScrollToTop = lazy(() => import("../../common/ScrollToTop"));
 
-
-
+interface Group {
+  id: number;
+  name: string;
+  created_at: string;
+}
 
 const Chat = () => {
+  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
+
   return (
     <Container>
-      <ChatEnterBlock/>
-      <ChatBlock/>
+      {selectedGroup ? (
+        <ChatBlock
+          group={selectedGroup}
+          onLeave={() => setSelectedGroup(null)}
+        />
+      ) : (
+        <ChatEnterBlock onEnterGroup={(group: Group) => setSelectedGroup(group)} />
+      )}
     </Container>
   );
 };

@@ -69,11 +69,15 @@ const UserForm = ({ title, content, id, t }: ScheduleInputFormProps) => {
     if (hasError) return;
 
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch(`${BASE_URL}/api/auth/updatePassword`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+          "X-Requested-With": "XMLHttpRequest",
+        },
         body: JSON.stringify({
-          account: values.account,
           oirPassword: values.password,
           newPassword: confirmPassword,
         }),

@@ -1,82 +1,25 @@
 import styled from "styled-components";
-export { FormGroup, ButtonContainer } from "../../common/styles";
 
 export const ChatContainer = styled("div")`
   width: 100%;
-  max-width: 600px;
-  height: 300px;
-  margin: 0 auto;
+  max-width: 800px;
+  margin: 3rem auto 24px;
   border: 1px solid #2e2e35;
   border-radius: 12px;
-  display: flex;
-  flex-direction: column;
   padding: 2rem;
-  align-items: center;
-  justify-content: space-between;
   background: #1a1a1f;
 
   @media only screen and (max-width: 1024px) {
-    height: 500px;
     padding: 1rem;
+    margin-top: 2rem;
   }
 `;
 
-export const Messages = styled("div")`
-  flex: 1;
+export const FormGroup = styled("form")`
   width: 100%;
-  overflow-y: auto;
-  margin-bottom: 16px;
-  padding: 1rem;
-  background: #0f0f11;
-  border-radius: 8px;
-  border: 1px solid #222228;
-
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: #2e2e35;
-    border-radius: 2px;
-  }
 `;
 
-export const Message = styled.div<{ isSelf: boolean }>`
-  display: flex;
-  flex-direction: column;
-  align-items: ${({ isSelf }) => (isSelf ? "flex-end" : "flex-start")};
-  margin-bottom: 12px;
-`;
-
-export const MetaData = styled.div<{ isSelf: boolean }>`
-  display: flex;
-  flex-direction: ${({ isSelf }) => (isSelf ? "row-reverse" : "row")};
-  justify-content: space-between;
-  width: 100%;
-  font-size: 12px;
-  color: #55556a;
-  margin-bottom: 4px;
-`;
-
-export const Sender = styled.span`
-  margin: 0 6px;
-`;
-
-export const Time = styled.span`
-  margin: 0 6px;
-`;
-
-export const Bubble = styled.div<{ isSelf: boolean }>`
-  background: ${({ isSelf }) => (isSelf ? "#1e2f1e" : "#1e1e2e")};
-  color: ${({ isSelf }) => (isSelf ? "#7de8a0" : "#c8c8d8")};
-  border: 1px solid ${({ isSelf }) => (isSelf ? "#235232" : "#2a2a40")};
-  padding: 0.5rem 1rem;
-  border-radius: 12px;
-  max-width: 80%;
-  word-wrap: break-word;
-  align-self: ${({ isSelf }) => (isSelf ? "flex-end" : "flex-start")};
-  font-size: 0.9rem;
-  line-height: 1.5;
+export const ButtonContainer = styled("div")`
+  text-align: end;
+  position: relative;
 `;

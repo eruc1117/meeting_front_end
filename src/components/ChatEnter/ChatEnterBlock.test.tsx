@@ -81,6 +81,15 @@ jest.mock('./styles', () => ({
   ChatContainer: ({ children }: any) => <div data-testid="chat-enter-container">{children}</div>,
   FormGroup: ({ children }: any) => <div>{children}</div>,
   ButtonContainer: ({ children, style }: any) => <div style={style}>{children}</div>,
+  WelcomeTitle: ({ children }: any) => <p>{children}</p>,
+  SectionLabel: ({ children }: any) => <p>{children}</p>,
+  GroupListWrapper: ({ children }: any) => <div>{children}</div>,
+  IdBadge: ({ children }: any) => <span>{children}</span>,
+  OwnerBadge: ({ children }: any) => <span>{children}</span>,
+  SearchTag: ({ children }: any) => <span>{children}</span>,
+  ActionLink: ({ children, onClick }: any) => <span onClick={onClick}>{children}</span>,
+  ErrorText: ({ children }: any) => <p>{children}</p>,
+  RenameInput: (props: any) => <input {...props} />,
 }));
 
 import ChatEnterBlock from './index';

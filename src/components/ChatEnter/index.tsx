@@ -2,7 +2,20 @@ import React, { useState, useEffect, useContext } from "react";
 import { withTranslation } from "react-i18next";
 import { Row, Col, List, Spin, Popconfirm } from "antd";
 import { Slide } from "react-awesome-reveal";
-import { ChatContainer, FormGroup, ButtonContainer } from "./styles";
+import {
+  ChatContainer,
+  FormGroup,
+  ButtonContainer,
+  WelcomeTitle,
+  SectionLabel,
+  GroupListWrapper,
+  IdBadge,
+  OwnerBadge,
+  SearchTag,
+  ActionLink,
+  ErrorText,
+  RenameInput,
+} from "./styles";
 import Input from "../../common/Input";
 import { Button } from "../../common/Button";
 import { AuthContext } from "../../contexts/AuthContext";
@@ -217,13 +230,6 @@ const ChatEnterBlock = ({ onEnterGroup }: ChatEnterBlockProps) => {
     }
   };
 
-  const actionLinkStyle: React.CSSProperties = {
-    color: "#55556a",
-    fontSize: 12,
-    cursor: "pointer",
-    marginLeft: 10,
-  };
-
   type ListEntry = Group & { isSearchResult?: boolean };
   const listData: ListEntry[] = [
     ...searchResults
@@ -237,132 +243,122 @@ const ChatEnterBlock = ({ onEnterGroup }: ChatEnterBlockProps) => {
       <Row justify="center" style={{ width: "100%", flexDirection: "column", gap: "16px" }}>
         <Col span={24}>
           <Slide direction="right" triggerOnce>
-            <p style={{ color: "#7de8a0", marginBottom: 8 }}>
-              歡迎，{user?.username}！請選擇或建立聊天室
-            </p>
+            <WelcomeTitle>歡迎，{user?.username}！請選擇或建立聊天室</WelcomeTitle>
 
             {/* 我的群組列表 */}
+            <SectionLabel>我的聊天室</SectionLabel>
             <Spin spinning={loading}>
-              <List
-                style={{
-                  background: "#0f0f11",
-                  borderRadius: 8,
-                  border: "1px solid #222228",
-                  maxHeight: 160,
-                  overflowY: "auto",
-                  marginBottom: 12,
-                }}
-                dataSource={listData}
-                locale={{ emptyText: <span style={{ color: "#55556a" }}>尚無群組，請建立或加入</span> }}
-                renderItem={(group) => {
-                  if (group.isSearchResult) {
+              <GroupListWrapper>
+                <List
+                  dataSource={listData}
+                  locale={{ emptyText: <span style={{ color: "#55556a" }}>尚無群組，請建立或加入</span> }}
+                  renderItem={(group) => {
+                    if (group.isSearchResult) {
+                      return (
+                        <List.Item
+                          style={{
+                            padding: "10px 16px",
+                            cursor: "pointer",
+                            color: "#c8c8d8",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                          onClick={() => joinById(group.id)}
+                        >
+                          <span style={{ display: "flex", alignItems: "center", minWidth: 0 }}>
+                            <IdBadge>#{group.id}</IdBadge>
+                            <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              {group.name}
+                            </span>
+                            <SearchTag>搜尋結果</SearchTag>
+                          </span>
+                          <ActionLink tone="accent">加入</ActionLink>
+                        </List.Item>
+                      );
+                    }
+                    const isOwner = group.owner_id != null && group.owner_id === user?.id;
+                    const isEditing = editingGroupId === group.id;
                     return (
                       <List.Item
                         style={{
-                          padding: "8px 16px",
+                          padding: "10px 16px",
                           cursor: "pointer",
                           color: "#c8c8d8",
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center",
                         }}
-                        onClick={() => joinById(group.id)}
+                        onClick={() => onEnterGroup(group)}
                       >
-                        <span>
-                          <span style={{ color: "#7de8a0" }}>#{group.id}</span>&nbsp;{group.name}
-                          <span style={{ color: "#55556a", fontSize: 12, marginLeft: 8 }}>
-                            搜尋結果
+                        {isEditing ? (
+                          <span
+                            onClick={(e) => e.stopPropagation()}
+                            style={{ display: "flex", gap: 8, alignItems: "center", width: "100%" }}
+                          >
+                            <RenameInput
+                              autoFocus
+                              value={editName}
+                              onChange={(e) => setEditName(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") handleRename(group.id);
+                                if (e.key === "Escape") setEditingGroupId(null);
+                              }}
+                            />
+                            <ActionLink tone="accent" onClick={() => handleRename(group.id)}>
+                              確認
+                            </ActionLink>
+                            <ActionLink onClick={() => setEditingGroupId(null)}>取消</ActionLink>
                           </span>
-                        </span>
-                        <span style={{ ...actionLinkStyle, color: "#7de8a0" }}>加入</span>
+                        ) : (
+                          <>
+                            <span style={{ display: "flex", alignItems: "center", minWidth: 0 }}>
+                              <IdBadge>#{group.id}</IdBadge>
+                              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                {group.name}
+                              </span>
+                              {isOwner && <OwnerBadge>建立者</OwnerBadge>}
+                            </span>
+                            <span
+                              onClick={(e) => e.stopPropagation()}
+                              style={{ flexShrink: 0 }}
+                            >
+                              {isOwner && (
+                                <ActionLink
+                                  onClick={() => {
+                                    setEditingGroupId(group.id);
+                                    setEditName(group.name);
+                                  }}
+                                >
+                                  改名
+                                </ActionLink>
+                              )}
+                              {isOwner && (
+                                <Popconfirm
+                                  title="確定刪除此聊天室？所有訊息將一併刪除"
+                                  okText="刪除"
+                                  cancelText="取消"
+                                  onConfirm={() => handleDelete(group.id)}
+                                >
+                                  <ActionLink tone="danger">刪除</ActionLink>
+                                </Popconfirm>
+                              )}
+                              <Popconfirm
+                                title="確定退出此聊天室？"
+                                okText="退出"
+                                cancelText="取消"
+                                onConfirm={() => handleLeave(group.id)}
+                              >
+                                <ActionLink>退出</ActionLink>
+                              </Popconfirm>
+                            </span>
+                          </>
+                        )}
                       </List.Item>
                     );
-                  }
-                  const isOwner = group.owner_id != null && group.owner_id === user?.id;
-                  const isEditing = editingGroupId === group.id;
-                  return (
-                    <List.Item
-                      style={{
-                        padding: "8px 16px",
-                        cursor: "pointer",
-                        color: "#c8c8d8",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                      onClick={() => onEnterGroup(group)}
-                    >
-                      {isEditing ? (
-                        <span
-                          onClick={(e) => e.stopPropagation()}
-                          style={{ display: "flex", gap: 8, alignItems: "center", width: "100%" }}
-                        >
-                          <input
-                            autoFocus
-                            value={editName}
-                            onChange={(e) => setEditName(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") handleRename(group.id);
-                              if (e.key === "Escape") setEditingGroupId(null);
-                            }}
-                            style={{
-                              flex: 1,
-                              background: "#0f0f11",
-                              border: "1px solid #7de8a0",
-                              borderRadius: 4,
-                              color: "#c8c8d8",
-                              padding: "2px 8px",
-                            }}
-                          />
-                          <span style={{ ...actionLinkStyle, color: "#7de8a0" }} onClick={() => handleRename(group.id)}>
-                            確認
-                          </span>
-                          <span style={actionLinkStyle} onClick={() => setEditingGroupId(null)}>
-                            取消
-                          </span>
-                        </span>
-                      ) : (
-                        <>
-                          <span>
-                            <span style={{ color: "#7de8a0" }}>#{group.id}</span>&nbsp;{group.name}
-                          </span>
-                          <span onClick={(e) => e.stopPropagation()}>
-                            {isOwner && (
-                              <span
-                                style={actionLinkStyle}
-                                onClick={() => {
-                                  setEditingGroupId(group.id);
-                                  setEditName(group.name);
-                                }}
-                              >
-                                改名
-                              </span>
-                            )}
-                            {isOwner && (
-                              <Popconfirm
-                                title="確定刪除此聊天室？所有訊息將一併刪除"
-                                okText="刪除"
-                                cancelText="取消"
-                                onConfirm={() => handleDelete(group.id)}
-                              >
-                                <span style={{ ...actionLinkStyle, color: "#ff6b6b" }}>刪除</span>
-                              </Popconfirm>
-                            )}
-                            <Popconfirm
-                              title="確定退出此聊天室？"
-                              okText="退出"
-                              cancelText="取消"
-                              onConfirm={() => handleLeave(group.id)}
-                            >
-                              <span style={actionLinkStyle}>退出</span>
-                            </Popconfirm>
-                          </span>
-                        </>
-                      )}
-                    </List.Item>
-                  );
-                }}
-              />
+                  }}
+                />
+              </GroupListWrapper>
             </Spin>
 
             {/* 建立新群組 */}
@@ -408,9 +404,7 @@ const ChatEnterBlock = ({ onEnterGroup }: ChatEnterBlockProps) => {
                 </Col>
               </Row>
 
-              {error && (
-                <p style={{ color: "#ff6b6b", fontSize: 12, marginTop: 4 }}>{error}</p>
-              )}
+              {error && <ErrorText>{error}</ErrorText>}
             </FormGroup>
           </Slide>
         </Col>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
 
-const CHAT_SERVER_URL = "http://localhost:4000";
+const CHAT_SERVER_URL = process.env.REACT_APP_CHAT_URL || "http://localhost:4000";
 
 export interface ChatMessage {
   id: number;

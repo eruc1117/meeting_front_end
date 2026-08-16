@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
 
-const CHAT_SERVER_URL = "http://localhost:4000";
+const CHAT_SERVER_URL = process.env.REACT_APP_CHAT_URL || "http://localhost:4000";
 
 export interface ChatMessage {
   id: number;
@@ -21,7 +21,7 @@ export interface ChatGroupHandlers {
 interface UseChatReturn {
   messages: ChatMessage[];
   connected: boolean;
-  sendMessage: (content: string) => void;
+  sendMessage: (content: string, onError?: (code: string) => void) => void;
 }
 
 const useChat = (
@@ -156,9 +156,16 @@ const useChat = (
   }, [groupId, token, loadHistory]);
 
   const sendMessage = useCallback(
-    (content: string) => {
+    (content: string, onError?: (code: string) => void) => {
       if (!socketRef.current || !groupId || !content.trim()) return;
-      socketRef.current.emit("send_group_message", { groupId, content: content.trim() });
+      socketRef.current.emit(
+        "send_group_message",
+        { groupId, content: content.trim() },
+        (res?: { ok?: boolean; error?: string }) => {
+          // 伺服器拒絕（訊息過長、發送過快、無權限等）時回報給呼叫端
+          if (res?.error) onError?.(res.error);
+        }
+      );
     },
     [groupId]
   );

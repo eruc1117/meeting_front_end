@@ -32,6 +32,9 @@
   - 搜尋結果列表，點擊跳轉對應月份
 - **參與人員 autocomplete** — debounce 呼叫使用者搜尋 API，下拉選單選取
 - **群組聊天室** — 即時訊息收發
+- **股票儀表板入口**（`/stock`）— 追蹤股票行情與每週全模型預測摘要（走後端 `/api/stock/*` 唯讀代理），
+  並可另開或內嵌 [erucMoney](https://github.com/eruc1117/erucMoney) 完整儀表板；**同一組帳號**——開啟時把登入 token
+  以網址片段 `#token=` 交接過去，不用再登入（兩邊後端共用 JWT 密鑰）
 
 ---
 
@@ -77,6 +80,14 @@ npm run build
 ```
 
 ---
+
+### 環境變數
+
+```env
+REACT_APP_BASEURL=http://localhost:5000        # meeting_API_Server
+REACT_APP_STOCK_URL=https://erucmoney.com      # 股票完整儀表板（「股票」分頁的另開／內嵌目標，選填）
+```
+
 
 ## 相關文件
 

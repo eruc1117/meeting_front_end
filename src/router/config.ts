@@ -18,7 +18,12 @@ const routes = [
     path: ["/chat"],
     exact: true,
     component: "Chat",
-  },  
+  },
+  {
+    path: ["/stock"],
+    exact: true,
+    component: "Stock",
+  },
   {
     path: ["/login"],
     exact: true,

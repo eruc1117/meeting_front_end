@@ -6,7 +6,7 @@ import routes from "./config";
 import { Styles } from "../styles/styles";
 import { AuthContext } from "../contexts/AuthContext";
 
-const PROTECTED_ROUTES = ["/schedule", "/user", "/chat"];
+const PROTECTED_ROUTES = ["/schedule", "/user", "/chat", "/stock"];
 
 const PrivateRoute = ({ component: Component, path, ...rest }: any) => {
   const { isLoggedIn, isInitialized } = useContext(AuthContext);

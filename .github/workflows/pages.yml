@@ -1,0 +1,54 @@
+# 統一前端部署到 GitHub Pages（erucmoney.com）
+#
+# 觸發：push 到 main（src/、public/、package.json 或本檔有變動），或手動 workflow_dispatch。
+# 產物：build/（含 public/CNAME = erucmoney.com；GitHub Pages 讀它設自訂網域）。
+# BrowserRouter 的深層路徑（/schedule、/stock…）在 GitHub Pages 會 404，所以把 index.html 複製成 404.html 當 fallback。
+#
+# 第一次要在 repo Settings → Pages → Source 選「GitHub Actions」。
+# 正式環境的 API 位址在下面 env 設：行事曆後端經 Cloudflare Tunnel 對外，股票儀表板在 stock.erucmoney.com。
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths: ['src/**', 'public/**', 'package.json', 'package-lock.json', '.github/workflows/pages.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          CI: 'false'                                   # 既有 ESLint 警告不當錯誤
+          REACT_APP_BASEURL: https://calendar-api.erucmoney.com
+          REACT_APP_STOCK_URL: https://stock.erucmoney.com
+      - run: cp build/index.html build/404.html         # SPA fallback
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

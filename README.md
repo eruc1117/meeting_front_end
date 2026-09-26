@@ -36,7 +36,8 @@
   （`src/stock/`；資料走後端 `/api/stock/*` 代理，登入就是本平台的登入）。**分析／管理雙模式**：
   - 分析（所有人）：市場總覽、個股分析、法人持股、預算查詢、美股、趨勢預測、預測比對、每週全模型、投票決策、
     我的持股（交易台帳、建議 vs 實際）、閒置資金、新聞情緒、新聞輸入、查詢紀錄
-  - 管理（股票系統 admin）：爬蟲與排程、資料新鮮度與回填、模型版本、使用者、健康狀態——換成橘色系提醒自己在動系統
+  - 管理（平台 admin）：爬蟲與排程、資料新鮮度與回填、模型版本、平台使用者（整套平台共用的帳號與 admin 身分）、股票本地帳號、健康狀態——換成橘色系提醒自己在動系統
+  - **admin 只有一種**：行事曆後端在登入 token 帶 `role`，管理 API 與股票系統都讀它；第一個 admin 由行事曆後端 `.env` 的 `ADMIN_ACCOUNTS` 指定
   - 路由 `/stock/:mode/:page`，例如 `/stock/analysis/holdings`、`/stock/admin/crawler`；個股跳轉帶 `?stock=2330`
   - 頁面元件與樣式從 erucMoney `Screen/` 搬來：`scripts/prefix-stock-css.js` 把它的 `index.css` 每條規則加上 `.stock-app`
     前綴產生 `src/stock/stock.css`；平台色票與殼層在 `src/stock/stock-overrides.css`

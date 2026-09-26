@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = (token, userInfo) => {
     // 只儲存最小必要資訊，避免敏感個資洩露
-    const minimalUser = { id: userInfo.id, username: userInfo.username };
+    const minimalUser = { id: userInfo.id, username: userInfo.username, role: userInfo.role || "user" };
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(minimalUser));
     setIsLoggedIn(true);
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, isInitialized, user, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, isInitialized, user, isAdmin: user?.role === "admin", login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -28,7 +28,7 @@ export function getUser() {
     calendar_id: cal.id,
     username: stock?.username || cal.username,
     display_name: stock?.display_name || cal.username,
-    role: stock?.role || 'user',
+    role: cal.role === 'admin' ? 'admin' : (stock?.role || 'user'),   // 整套平台共用的 admin：以行事曆的 role 為準
     resolved: Boolean(stock),
   }
 }

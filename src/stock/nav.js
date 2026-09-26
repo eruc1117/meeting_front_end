@@ -1,6 +1,6 @@
 // 股票分頁的導覽（方案 9：分析／管理雙模式）
 //
-// 分析：所有登入者。管理：只有股票系統角色為 admin 的人（.env SSO_ADMIN_USERNAMES 或 admin 在「使用者」頁指定）。
+// 分析：所有登入者。管理：只有平台 admin（整套平台共用一種 admin 身分，角色在登入 token 裡；第一個 admin 由行事曆後端 .env 的 ADMIN_ACCOUNTS 指定）。
 // 每一項對應一個頁面元件；路徑是 /stock/<mode>/<key>。
 import { lazy } from 'react'
 
@@ -42,7 +42,8 @@ export const ADMIN = [
     { key: 'models',   label: '模型版本',   title: '模型版本',    desc: '凍結、切換服役版本、回填實際值重算',      page: P('ModelVersions') },
   ] },
   { group: '帳號', items: [
-    { key: 'users',    label: '使用者',     title: '使用者',      desc: '股票系統的角色與帳號（SSO 使用者自動建立）', page: P('AdminUsers') },
+    { key: 'users',    label: '平台使用者', title: '平台使用者',  desc: '整套平台共用的帳號與 admin 身分（行事曆與股票同一份）', page: P('AdminPlatformUsers') },
+    { key: 'local',    label: '股票本地帳號', title: '股票本地帳號', desc: '只在股票 API 存在的帳號（不走單一登入）；平台帳號會自動對應', page: P('AdminUsers') },
   ] },
   { group: '服務', items: [
     { key: 'health',   label: '健康狀態',   title: '健康狀態',    desc: '股票 API、爬蟲服務、排程',                page: P('AdminHealth') },

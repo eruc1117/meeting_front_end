@@ -33,7 +33,7 @@ export default function AdminUsers() {
 
   return (
     <>
-      <div className="stock-admin-note">單一登入的管理者也可以在股票系統 .env 的 SSO_ADMIN_USERNAMES 指定（第一次登入就升 admin）；在這裡降級的帳號若還在清單裡，下次登入會被升回來。</div>
+      <div className="stock-admin-note">平台帳號（來源「行事曆 #id」）的角色以「平台使用者」頁為準，每次請求都會從登入 token 同步過來，在這裡改會被蓋掉。這頁只用來管理只存在於股票 API 的本地帳號。</div>
       <div className="card" style={{ padding: '1.2rem' }}>
         <div className="card-title" style={{ marginBottom: '.8rem' }}>使用者（{rows.length}）</div>
         {err && <div style={{ color: 'var(--red)', marginBottom: '.6rem' }}>{err}</div>}

@@ -26,3 +26,8 @@ yarn-error.log*
 
 
 suggest.txt.claude/
+
+# playwright
+/test-results
+/playwright-report
+/playwright/.cache

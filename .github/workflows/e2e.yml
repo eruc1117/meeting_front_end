@@ -1,0 +1,72 @@
+# 端到端（Playwright）— 每晚跑；不在 push 時跑（要起三個 repo 的服務，太慢）
+#
+# 目前是骨架：checkout 三個 repo、建測試庫、起兩個測試後端的步驟寫在下面但標 TODO，
+# 等 meeting_API_Server 與 erucMoney 的測試庫流程（.env.test、migrate、seed）定案後補上。
+# 本機執行方式見 e2e/README.md。
+name: E2E (nightly)
+
+on:
+  schedule:
+    - cron: '0 3 * * *'        # 每天 03:00 UTC（台灣 11:00）
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      E2E_API: http://localhost:5100
+      E2E_ADMIN_ACCOUNT: t_admin
+      E2E_ADMIN_PASSWORD: Passw0rdE2E
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: meeting_front_end
+      - uses: actions/checkout@v4
+        with:
+          repository: eruc1117/meeting_API_Server
+          path: meeting_API_Server
+      - uses: actions/checkout@v4
+        with:
+          repository: eruc1117/erucMoney
+          path: erucMoney
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # TODO（等測試庫流程定案）：建 Schedule_test 與 Stock_test、migrate、seed
+      # - run: psql -h localhost -U postgres -c 'CREATE DATABASE "Schedule_test"' && psql ... 'CREATE DATABASE "Stock_test"'
+      # - run: cd meeting_API_Server && npm ci && DATABASE_URL=postgres://postgres:postgres@localhost:5432/Schedule_test npx node-pg-migrate up
+      # - run: cd erucMoney/Server && npm ci && node lib/migrate.js（用 .env.test）&& node tests/helpers/seed.js
+
+      # TODO：起兩個測試後端（背景）與 FastAPI mock
+      # - run: cd meeting_API_Server && (PORT=5100 node -r dotenv/config server.js dotenv_config_path=.env.test &)
+      # - run: cd erucMoney/Server && (PORT=3101 node -r dotenv/config index.js dotenv_config_path=.env.test &)
+      # - run: cd erucMoney/Server && (node tests/helpers/fastapi-mock.js &)
+
+      - name: Build frontend against the test backend
+        working-directory: meeting_front_end
+        run: |
+          npm ci
+          npm run build:e2e
+          cp build/index.html build/404.html
+      - name: Install Playwright
+        working-directory: meeting_front_end
+        run: npx playwright install --with-deps chromium
+      - name: Run E2E
+        working-directory: meeting_front_end
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: meeting_front_end/playwright-report
+          retention-days: 7

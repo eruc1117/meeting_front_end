@@ -12,6 +12,8 @@ on:
   push:
     branches: [main]
     paths: ['src/**', 'public/**', 'package.json', 'package-lock.json', '.github/workflows/pages.yml']
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -24,7 +26,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run test:unit                          # 單元測試沒過就不建置、不部署
+
   build:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -44,6 +58,7 @@ jobs:
 
   deploy:
     needs: build
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

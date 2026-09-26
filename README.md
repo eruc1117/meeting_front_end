@@ -32,9 +32,14 @@
   - 搜尋結果列表，點擊跳轉對應月份
 - **參與人員 autocomplete** — debounce 呼叫使用者搜尋 API，下拉選單選取
 - **群組聊天室** — 即時訊息收發
-- **股票儀表板入口**（`/stock`）— 追蹤股票行情與每週全模型預測摘要（走後端 `/api/stock/*` 唯讀代理），
-  並可另開或內嵌 [erucMoney](https://github.com/eruc1117/erucMoney) 完整儀表板；**同一組帳號**——開啟時把登入 token
-  以網址片段 `#token=` 交接過去，不用再登入（兩邊後端共用 JWT 密鑰）
+- **股票**（`/stock`）— [erucMoney](https://github.com/eruc1117/erucMoney) 台股預測系統的**全部功能**併在這裡，不另開網站
+  （`src/stock/`；資料走後端 `/api/stock/*` 代理，登入就是本平台的登入）。**分析／管理雙模式**：
+  - 分析（所有人）：市場總覽、個股分析、法人持股、預算查詢、美股、趨勢預測、預測比對、每週全模型、投票決策、
+    我的持股（交易台帳、建議 vs 實際）、閒置資金、新聞情緒、新聞輸入、查詢紀錄
+  - 管理（股票系統 admin）：爬蟲與排程、資料新鮮度與回填、模型版本、使用者、健康狀態——換成橘色系提醒自己在動系統
+  - 路由 `/stock/:mode/:page`，例如 `/stock/analysis/holdings`、`/stock/admin/crawler`；個股跳轉帶 `?stock=2330`
+  - 頁面元件與樣式從 erucMoney `Screen/` 搬來：`scripts/prefix-stock-css.js` 把它的 `index.css` 每條規則加上 `.stock-app`
+    前綴產生 `src/stock/stock.css`；平台色票與殼層在 `src/stock/stock-overrides.css`
 
 ---
 
@@ -84,8 +89,7 @@ npm run build
 ### 環境變數
 
 ```env
-REACT_APP_BASEURL=http://localhost:5000        # meeting_API_Server
-REACT_APP_STOCK_URL=https://erucmoney.com      # 股票完整儀表板（「股票」分頁的另開／內嵌目標，選填）
+REACT_APP_BASEURL=http://localhost:5000        # meeting_API_Server（股票功能也走它的 /api/stock 代理）
 ```
 
 

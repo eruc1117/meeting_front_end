@@ -1,0 +1,114 @@
+/* 股票分頁專屬的覆寫（方案 9：分析／管理雙模式）。
+   stock.css 是從 erucMoney 產生的，這裡只放屬於行事曆平台的東西：
+   1. 色票改成平台的深色主題（黑底、紫色主色）；管理模式換成橘色系。
+   2. 把平台全域元素樣式（h1–h6 56px、p 21px、input 100% 寬）在 .stock-app 內還原。
+   3. 殼層：模式列、左側分組導覽、內容區。 */
+
+.stock-app {
+  --bg:        #0f0f11;
+  --bg2:       #1a1a1f;
+  --bg3:       #242429;
+  --surface:   #1a1a1f;
+  --hover:     #26262d;
+  --border:    #2e2e35;
+  --border-soft:#26262d;
+  --text:      #e8e8ee;
+  --text-strong:#ffffff;
+  --dim:       #9898aa;
+  --blue:      #9a8ef5;
+  --blue-soft: rgba(154,142,245,.18);
+  --purple:    #b98cff;
+  --accent:    #7c6af2;
+  --accent-soft: rgba(124,106,242,.18);
+  --sidebar:   220px;
+  font-family: 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
+  min-height: calc(100vh - 64px);
+  height: auto;
+  overflow: visible;
+  color-scheme: dark;
+}
+.stock-app[data-mode='admin'] {
+  --blue:      #ffb36b;
+  --blue-soft: rgba(255,179,107,.18);
+  --accent:    #ffb36b;
+  --accent-soft: rgba(255,179,107,.18);
+}
+
+/* 平台全域元素樣式還原 */
+.stock-app h1, .stock-app h2, .stock-app h3, .stock-app h4, .stock-app h5, .stock-app h6 {
+  font-family: inherit; font-size: inherit; line-height: inherit; color: inherit; font-weight: 650;
+}
+.stock-app p { font-size: inherit; line-height: inherit; color: inherit; }
+.stock-app a { color: var(--blue); }
+.stock-app a:hover { color: var(--text-strong); }
+.stock-app input, .stock-app textarea, .stock-app select {
+  width: auto; padding: .45rem .6rem; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--bg); color: var(--text); font: inherit; transition: none;
+}
+.stock-app input:focus-within, .stock-app textarea:focus-within { background: var(--bg); box-shadow: none; }
+.stock-app input[type='checkbox'], .stock-app input[type='radio'] { width: auto; padding: 0; }
+.stock-app button { font-family: inherit; }
+.stock-app .content { overflow: visible; min-height: 0; padding: 1.25rem 1.5rem 3rem; }
+
+/* ── 殼層 ─────────────────────────────────────────────────── */
+.stock-modebar {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  padding: .7rem 1.5rem; border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.stock-mode {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; font-size: .9rem;
+}
+.stock-mode button {
+  padding: .5rem 1rem; background: transparent; border: 0; color: var(--dim); cursor: pointer;
+  display: inline-flex; align-items: center; gap: .5rem;
+}
+.stock-mode button .sub { font-size: .75rem; color: var(--dim); }
+.stock-mode button.on { background: var(--bg3); color: var(--text-strong); }
+.stock-mode button.on.admin { color: #ffb36b; }
+.stock-mode button:disabled { cursor: not-allowed; opacity: .5; }
+.stock-modebar .hint { font-size: .8rem; color: var(--dim); }
+.stock-modebar .who { font-size: .85rem; color: var(--dim); display: inline-flex; align-items: center; gap: .6rem; }
+.stock-modebar .who b { color: var(--text); font-weight: 600; }
+.stock-modebar .pill {
+  font-size: .72rem; padding: .15rem .55rem; border-radius: 999px; border: 1px solid var(--border); color: var(--dim);
+}
+.stock-modebar .pill.admin { color: #ffb36b; border-color: rgba(255,179,107,.5); }
+.stock-modebar .pill.online { color: var(--green); border-color: rgba(53,199,106,.5); }
+.stock-modebar .pill.offline { color: var(--red); border-color: rgba(255,95,87,.5); }
+
+.stock-body { display: grid; grid-template-columns: var(--sidebar) minmax(0, 1fr); }
+.stock-side {
+  border-right: 1px solid var(--border); padding: .6rem .5rem 1rem;
+  position: sticky; top: 0; align-self: flex-start; max-height: 100vh; overflow-y: auto;
+}
+.stock-side h3 {
+  margin: .8rem .7rem .25rem; font-size: .7rem; font-weight: 500; letter-spacing: .08em; color: #55556a;
+}
+.stock-side a {
+  display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+  padding: .5rem .7rem; border-radius: 8px; font-size: .9rem; color: #c8c8d2; text-decoration: none;
+}
+.stock-side a:hover { background: var(--hover); color: var(--text-strong); }
+.stock-side a.on { background: var(--accent-soft); color: var(--text-strong); box-shadow: inset 3px 0 0 var(--accent); }
+.stock-side a small { font-size: .72rem; color: var(--dim); }
+.stock-side .side-foot { margin-top: 1rem; padding: .6rem .7rem; font-size: .75rem; color: var(--dim); line-height: 1.6; }
+
+.stock-page-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.stock-page-head h1 { font-size: 1.35rem; font-weight: 700; color: var(--text-strong); }
+.stock-page-head .desc { font-size: .85rem; color: var(--dim); }
+
+.stock-admin-note {
+  padding: .6rem .9rem; border-radius: 8px; border: 1px solid rgba(255,179,107,.4); background: rgba(255,179,107,.08);
+  font-size: .85rem; color: #ffd9b3;
+}
+.stock-forbidden { padding: 2rem; text-align: center; color: var(--dim); }
+
+@media (max-width: 900px) {
+  .stock-body { grid-template-columns: 1fr; }
+  .stock-side { position: static; max-height: none; border-right: 0; border-bottom: 1px solid var(--border);
+                display: flex; flex-wrap: wrap; gap: .25rem; }
+  .stock-side h3 { width: 100%; }
+  .stock-side a { padding: .4rem .6rem; }
+  .stock-side .side-foot { display: none; }
+}

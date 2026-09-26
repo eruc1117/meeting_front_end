@@ -1,20 +1,12 @@
-import { lazy } from "react";
-import { StockProvider } from "../../contexts/StockContext";
-import StockContent from "../../content/StockContent.json";
+import { lazy, Suspense } from "react";
 
-const Container = lazy(() => import("../../common/Container"));
-const ScrollToTop = lazy(() => import("../../common/ScrollToTop"));
-const StockBlock = lazy(() => import("../../components/Stock"));
+// 股票：erucMoney 儀表板的全部功能併進來（src/stock/），分析／管理雙模式；路由 /stock/:mode?/:page?
+const StockApp = lazy(() => import("../../stock/StockApp.jsx"));
 
-const Stock = () => {
-  return (
-    <Container>
-      <ScrollToTop />
-      <StockProvider>
-        <StockBlock title={StockContent.title} content={StockContent.text} id="stock" />
-      </StockProvider>
-    </Container>
-  );
-};
+const Stock = () => (
+  <Suspense fallback={null}>
+    <StockApp />
+  </Suspense>
+);
 
 export default Stock;

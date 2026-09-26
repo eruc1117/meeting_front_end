@@ -5,7 +5,7 @@
 # BrowserRouter 的深層路徑（/schedule、/stock…）在 GitHub Pages 會 404，所以把 index.html 複製成 404.html 當 fallback。
 #
 # 第一次要在 repo Settings → Pages → Source 選「GitHub Actions」。
-# 正式環境的 API 位址在下面 env 設：行事曆後端經 Cloudflare Tunnel 對外，股票儀表板在 stock.erucmoney.com。
+# 正式環境的 API 位址在下面 env 設：行事曆後端經 Cloudflare Tunnel 對外；股票功能全部走它的 /api/stock 代理。
 name: Deploy to GitHub Pages
 
 on:
@@ -37,7 +37,6 @@ jobs:
         env:
           CI: 'false'                                   # 既有 ESLint 警告不當錯誤
           REACT_APP_BASEURL: https://calendar-api.erucmoney.com
-          REACT_APP_STOCK_URL: https://stock.erucmoney.com
       - run: cp build/index.html build/404.html         # SPA fallback
       - uses: actions/upload-pages-artifact@v3
         with:

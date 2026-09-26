@@ -20,8 +20,8 @@ const routes = [
     component: "Chat",
   },
   {
-    path: ["/stock"],
-    exact: true,
+    path: ["/stock/:mode?/:page?"],   // 股票：分析／管理雙模式，子路徑在 src/stock/StockApp.jsx 處理
+    exact: false,
     component: "Stock",
   },
   {

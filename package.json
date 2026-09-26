@@ -34,6 +34,7 @@
     "eject": "react-scripts eject",
     "test:unit": "cross-env CI=true react-scripts test --watchAll=false",
     "test:e2e": "playwright test",
+    "e2e:stack": "node e2e/stack.js",
     "build:e2e": "cross-env CI=false REACT_APP_BASEURL=http://localhost:5100 react-scripts build"
   },
   "eslintConfig": {

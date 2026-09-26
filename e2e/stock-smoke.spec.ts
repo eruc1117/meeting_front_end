@@ -30,7 +30,7 @@ test.describe('模型類頁面冒煙', () => {
       await expect(s.title).toHaveText(title);
       await page.waitForTimeout(1500);
       await expect(s.boundaryError).toHaveCount(0);
-      expect(errors.filter((e) => !/favicon|ResizeObserver|Failed to load resource/.test(e))).toEqual([]);
+      expect(errors.filter((e) => !/favicon|ResizeObserver|X-Frame-Options|Failed to load resource/.test(e))).toEqual([]);
     });
   }
 

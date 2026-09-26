@@ -43,7 +43,7 @@ test.describe('市場總覽與個股分析', () => {
     await page.goto('/stock/analysis/stock');
     await page.locator('.stock-app input.stock-input').first().fill('9999');
     await page.getByRole('button', { name: /查詢/ }).click();
-    await expect(page.getByText(/查無|資料不足|尚無/)).toBeVisible();
+    await expect(page.getByText(/找不到股票|查無|資料不足|尚無/).first()).toBeVisible();
     await expect(page.getByText(/連線失敗/)).toHaveCount(0);
   });
 });

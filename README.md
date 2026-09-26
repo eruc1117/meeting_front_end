@@ -99,9 +99,9 @@ REACT_APP_BASEURL=http://localhost:5000        # meeting_API_Server（股票功�
 | 層 | 指令 | 內容 |
 |----|------|------|
 | 單元（Jest + Testing Library） | `npm run test:unit` | `src/**/*.test.*`：AuthContext（登入狀態與 role）、股票 API／auth shim、StockApp 殼層（模式守門、導覽、`?stock=`）、Router 守門、聊天元件。不碰網路。 |
-| 端到端（Playwright） | `npm run build:e2e` → `npm run test:e2e` | `e2e/*.spec.ts`：註冊登入、行程、股票殼層、市場總覽→個股分析、法人／預算／查詢紀錄、持股台帳、新聞輸入、管理模式、模型頁冒煙、CSP。需要兩個測試後端（:5100 行事曆、:3101 股票，各接 `_test` 資料庫），詳見 [e2e/README.md](e2e/README.md)。只有 `csp.spec.ts` 不需要後端。 |
+| 端到端（Playwright） | `npm run build:e2e` → `npm run test:e2e` | `e2e/*.spec.ts`：註冊登入、行程、股票殼層、市場總覽→個股分析、法人／預算／查詢紀錄、持股台帳、新聞輸入、管理模式、模型頁冒煙、CSP。`e2e/stack.js` 會自動建測試庫、seed、起兩個測試後端（:5100 行事曆、:3101 股票），一條指令跑完 44 個案例；詳見 [e2e/README.md](e2e/README.md)。只有 `csp.spec.ts` 不需要後端。 |
 
-CI：`pages.yml` 先跑單元測試，過了才建置部署；`e2e.yml` 每天 03:00 UTC 跑 E2E（骨架，等測試庫流程定案後補起服務的步驟）。
+CI：`pages.yml` 先跑單元測試，過了才建置部署；`e2e.yml` 每天 03:00 UTC 跑 E2E（checkout 三個 repo、postgres 服務、`e2e/stack.js` 起兩個測試後端）。
 
 注意：`tsconfig.json` 把 `*.test.js/.jsx` 也排除在型別檢查外——`allowJs` 會把它們拉進 build 的型別檢查，而它們 import 的 `@testing-library/react` 帶著另一份 `@types/react` 18，會讓 build 報 TS2786。
 

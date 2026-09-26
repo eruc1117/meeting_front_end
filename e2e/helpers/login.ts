@@ -1,12 +1,15 @@
 import { Page, expect } from '@playwright/test';
 import { TestUser } from './api';
 
+/** 登入表單的送出鈕（antd primary，文字「登 入」）；導覽列另有一顆「登入」連結，不能用文字選 */
+export const loginButton = (page: Page) => page.locator('form button.ant-btn-primary, button.ant-btn-primary', { hasText: /登\s*入/ }).first();
+
 /** 走 UI 登入：/login 表單 → 成功導到 /schedule */
 export async function loginViaUi(page: Page, u: TestUser) {
   await page.goto('/login');
   await page.locator('input[name=account]').fill(u.account);
   await page.locator('input[name=password]').fill(u.password);
-  await page.getByRole('button', { name: /登\s*入/ }).click();
+  await loginButton(page).click();
   await expect(page).toHaveURL(/\/schedule$/);
 }
 

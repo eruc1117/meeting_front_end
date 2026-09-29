@@ -32,6 +32,15 @@
   - 搜尋結果列表，點擊跳轉對應月份
 - **參與人員 autocomplete** — debounce 呼叫使用者搜尋 API，下拉選單選取
 - **群組聊天室** — 即時訊息收發
+- **股票**（`/stock`）— [erucMoney](https://github.com/eruc1117/erucMoney) 台股預測系統的**全部功能**併在這裡，不另開網站
+  （`src/stock/`；資料走後端 `/api/stock/*` 代理，登入就是本平台的登入）。**分析／管理雙模式**：
+  - 分析（所有人）：市場總覽、個股分析、法人持股、預算查詢、美股、趨勢預測、預測比對、每週全模型、投票決策、
+    我的持股（交易台帳、建議 vs 實際）、閒置資金、新聞情緒、新聞輸入、查詢紀錄
+  - 管理（平台 admin）：爬蟲與排程、資料新鮮度與回填、模型版本、平台使用者（整套平台共用的帳號與 admin 身分）、股票本地帳號、健康狀態——換成橘色系提醒自己在動系統
+  - **admin 只有一種**：行事曆後端在登入 token 帶 `role`，管理 API 與股票系統都讀它；第一個 admin 由行事曆後端 `.env` 的 `ADMIN_ACCOUNTS` 指定
+  - 路由 `/stock/:mode/:page`，例如 `/stock/analysis/holdings`、`/stock/admin/crawler`；個股跳轉帶 `?stock=2330`
+  - 頁面元件與樣式從 erucMoney `Screen/` 搬來：`scripts/prefix-stock-css.js` 把它的 `index.css` 每條規則加上 `.stock-app`
+    前綴產生 `src/stock/stock.css`；平台色票與殼層在 `src/stock/stock-overrides.css`
 
 ---
 
@@ -77,6 +86,24 @@ npm run build
 ```
 
 ---
+
+### 環境變數
+
+```env
+REACT_APP_BASEURL=http://localhost:5000        # meeting_API_Server（股票功能也走它的 /api/stock 代理）
+```
+
+
+## 測試
+
+| 層 | 指令 | 內容 |
+|----|------|------|
+| 單元（Jest + Testing Library） | `npm run test:unit` | `src/**/*.test.*`：AuthContext（登入狀態與 role）、股票 API／auth shim、StockApp 殼層（模式守門、導覽、`?stock=`）、Router 守門、聊天元件。不碰網路。 |
+| 端到端（Playwright） | `npm run build:e2e` → `npm run test:e2e` | `e2e/*.spec.ts`：註冊登入、行程、股票殼層、市場總覽→個股分析、法人／預算／查詢紀錄、持股台帳、新聞輸入、管理模式、模型頁冒煙、CSP。`e2e/stack.js` 會自動建測試庫、seed、起兩個測試後端（:5100 行事曆、:3101 股票），一條指令跑完 44 個案例；詳見 [e2e/README.md](e2e/README.md)。只有 `csp.spec.ts` 不需要後端。 |
+
+CI：`pages.yml` 先跑單元測試，過了才建置部署；`e2e.yml` 每天 03:00 UTC 跑 E2E（checkout 三個 repo、postgres 服務、`e2e/stack.js` 起兩個測試後端）。
+
+注意：`tsconfig.json` 把 `*.test.js/.jsx` 也排除在型別檢查外——`allowJs` 會把它們拉進 build 的型別檢查，而它們 import 的 `@testing-library/react` 帶著另一份 `@types/react` 18，會讓 build 報 TS2786。
 
 ## 相關文件
 

@@ -1,0 +1,77 @@
+# 端到端（Playwright）— 每晚跑；不在 push 時跑（要起三個 repo 的服務，太慢）
+#
+# 拓樸與本機執行方式見 e2e/README.md：e2e/stack.js 會建 Schedule_test／Stock_test、migrate、seed、
+# 起假 FastAPI 與兩個測試後端（:5100、:3101），Playwright 的 globalSetup 呼叫它，一條 `npm run test:e2e` 就能跑。
+name: E2E (nightly)
+
+on:
+  schedule:
+    - cron: '0 3 * * *'        # 每天 03:00 UTC（台灣 11:00）
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      # 兩個測試後端的 DB 連線：.env.test 只有 host/port/name/user，密碼由這裡給（本機是從各 repo 的 .env 讀）
+      DB_HOST: localhost
+      DB_PORT: '5432'
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      TEST_DB_PASSWORD: postgres
+      E2E_CAL_DIR: ${{ github.workspace }}/meeting_API_Server
+      E2E_MONEY_DIR: ${{ github.workspace }}/erucMoney
+      E2E_API: http://localhost:5100
+      E2E_ADMIN_ACCOUNT: t_admin
+      E2E_ADMIN_PASSWORD: Passw0rdE2E
+      E2E_STACK_QUIET: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: meeting_front_end
+      - uses: actions/checkout@v4
+        with:
+          repository: eruc1117/meeting_API_Server
+          path: meeting_API_Server
+      - uses: actions/checkout@v4
+        with:
+          repository: eruc1117/erucMoney
+          path: erucMoney
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install backends
+        run: |
+          (cd meeting_API_Server && npm ci)
+          (cd erucMoney/Server && npm ci)
+
+      - name: Build frontend against the test backend
+        working-directory: meeting_front_end
+        run: |
+          npm ci
+          npm run build:e2e
+          cp build/index.html build/404.html
+      - name: Install Playwright
+        working-directory: meeting_front_end
+        run: npx playwright install --with-deps chromium
+      - name: Run E2E（globalSetup 起測試堆疊：建庫、migrate、seed、兩個後端）
+        working-directory: meeting_front_end
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: |
+            meeting_front_end/playwright-report
+            meeting_front_end/test-results
+          retention-days: 7

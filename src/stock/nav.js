@@ -26,6 +26,7 @@ export const ANALYSIS = [
   ] },
   { group: '新聞', items: [
     { key: 'sentiment',     label: '新聞情緒',   title: '新聞情緒',        desc: '規則引擎與 MOPS 公告分類',        page: P('NewsSentiment') },
+    { key: 'signals',       label: '新聞訊號',   title: '新聞訊號',        desc: '六個維度與三個新聞模型的關卡（Iteration 47）', page: P('NewsSignals') },
     { key: 'news',          label: '新聞輸入',   title: '新聞輸入',        desc: '手動貼入文章分析、管理新聞',      page: P('NewsInput') },
   ] },
   { group: '其他', items: [

@@ -21,8 +21,10 @@ permissions:
   pages: write
   id-token: write
 
+# 同一個 ref 才互相取消：PR 的檢查跑（不部署）和 main 的部署跑本來就無關，共用一組會讓 PR 一開
+# 就把 main 正在進行的部署取消掉（2026-09-30 d9d6103 就是這樣被取消，網站沒更新）。
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

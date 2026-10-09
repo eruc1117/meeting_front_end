@@ -24,6 +24,7 @@ export const ANALYSIS = [
   { group: '資產', personal: true, items: [
     { key: 'holdings',      label: '我的持股',   title: '我的持股',        desc: '持股、交易台帳、建議 vs 實際',    page: P('Holdings') },
     { key: 'cash',          label: '閒置資金',   title: '閒置資金',        desc: '一週配置建議（風險調整後）',      page: P('IdleCash') },
+    { key: 'trading',       label: '程式交易',   title: '程式交易（候選策略下單）', desc: '月清單 × 你的持股與現金 → 下單指令、登記、對帳（Iteration 57）', page: P('AlgoTrading') },
   ] },
   { group: '新聞', items: [
     { key: 'sentiment',     label: '新聞情緒',   title: '新聞情緒',        desc: '規則引擎與 MOPS 公告分類',        page: P('NewsSentiment') },

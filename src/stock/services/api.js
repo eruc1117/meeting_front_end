@@ -312,6 +312,11 @@ export const getPortfolioRuns = () => request('/portfolio/runs')
 export const getPortfolioRun = (id, step = 1) => request(`/portfolio/runs/${id}?step=${step}`)
 export const getPortfolioPaper = () => request('/portfolio/paper')
 
+// ── 程式交易（Iteration 57）：清單 → 下單指令；執行紀錄 ──
+export const getTradingPlan = (cash, minTrade = 1000) =>
+  request(`/trading/plan?cash=${encodeURIComponent(cash)}&min_trade=${encodeURIComponent(minTrade)}`)
+export const getTradingLog = () => request('/trading/log')
+
 export const getWeeklyPlan = (stockId) =>
   request(`/voting/weekly-plan?stock_id=${encodeURIComponent(stockId)}`)
 

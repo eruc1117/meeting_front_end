@@ -20,6 +20,7 @@ export const ANALYSIS = [
     { key: 'weekly',        label: '每週全模型', title: '每週全模型預測',  desc: '49 檔 × 27 模型，兩週中位數與區間', page: P('WeeklyForecast') },
     { key: 'voting',        label: '投票決策',   title: '投票決策',        desc: '閘門過濾後的 Buy / Hold / Sell',   page: P('VotingDashboard') },
     { key: 'portfolio',     label: '月調倉',     title: '月調倉（打敗大盤）', desc: '候選對門檻、淨值對 0050、實驗日誌（Iteration 51）', page: P('PortfolioLab') },
+    { key: 'simulate',      label: '交易模擬',   title: '交易模擬（歷史回放、自訂指令）', desc: '不用登入：自己寫買賣指令跑實際日線看收益；候選策略加引擎規則的六年回放（Iteration 60）', page: P('TradingSim') },
   ] },
   { group: '資產', personal: true, items: [
     { key: 'holdings',      label: '我的持股',   title: '我的持股',        desc: '持股、交易台帳、建議 vs 實際',    page: P('Holdings') },

@@ -31,10 +31,16 @@ function mount(path: string, auth: Partial<{ isLoggedIn: boolean; isInitialized:
   );
 }
 
-test.each(['/schedule', '/user', '/chat', '/stock', '/stock/admin/crawler'])(
+test.each(['/schedule', '/user', '/chat'])(
   '未登入開 %s → 導到 /login', async (path) => {
     mount(path, { isLoggedIn: false });
     expect(await screen.findByText('LOGIN')).toBeInTheDocument();
+  });
+
+test.each(['/stock', '/stock/analysis/portfolio', '/stock/admin/crawler'])(
+  '股票分頁公開：未登入開 %s 也進得去（持股、閒置資金與管理模式由 StockApp 自己擋）', async (path) => {
+    mount(path, { isLoggedIn: false });
+    expect(await screen.findByText('STOCK')).toBeInTheDocument();
   });
 
 test('公開頁不用登入：/ 與 /login', async () => {

@@ -44,13 +44,16 @@ const Header = ({ t }: { t: TFunction }) => {
             <CustomNavLinkSmall as="a" href="/chat">
               <Span>{t("Chat")}</Span>
             </CustomNavLinkSmall>
-            <CustomNavLinkSmall as="a" href="/stock">
-              <Span>{t("Stock")}</Span>
-            </CustomNavLinkSmall>
-            <CustomNavLinkSmall as="a" href="/user">
-              <Span>{t("User")}</Span>
-            </CustomNavLinkSmall>
           </>
+        )}
+        {/* 股票分頁公開：分析頁免登入（erucMoney Iteration 52），所以連結一律顯示；持股與閒置資金在分頁內要求登入 */}
+        <CustomNavLinkSmall as="a" href="/stock/analysis/overview">
+          <Span>{t("Stock")}</Span>
+        </CustomNavLinkSmall>
+        {isLoggedIn && (
+          <CustomNavLinkSmall as="a" href="/user">
+            <Span>{t("User")}</Span>
+          </CustomNavLinkSmall>
         )}
         {isLoggedIn ? (
           <CustomNavLinkSmall style={{ width: "80px" }} as="a" href="/">

@@ -8,7 +8,7 @@ import { useHistory, useParams, useLocation, Link } from 'react-router-dom'
 import { ThemeProvider } from './theme'
 import { MODES, findItem } from './nav'
 import { getMe, getStockHealth } from './services/api'
-import { getUser, setStockUser, onAuthChange } from './services/auth'
+import { getUser, setStockUser, onAuthChange, getToken } from './services/auth'
 import ErrorBoundary from './components/ErrorBoundary'
 import './stock.css'
 import './stock-overrides.css'
@@ -31,15 +31,17 @@ export default function StockApp() {
   const item = findItem(mode, key) || findItem(mode, MODES[mode].home)
   const isAdmin = user?.role === 'admin'
 
-  // 向股票系統確認身分（第一次會自動建立對應使用者），拿角色
+  // 向股票系統確認身分（第一次會自動建立對應使用者），拿角色；沒登入就不問（分析頁免登入，Iteration 52）
   useEffect(() => {
     let alive = true
-    getMe().then(({ data, error }) => {
-      if (!alive) return
-      if (error || !data) { setMeError(error || '無法確認股票系統身分'); return }
-      setStockUser({ id: data.id, username: data.username, role: data.role, display_name: data.display_name })
-      setMeError('')
-    })
+    if (getToken()) {
+      getMe().then(({ data, error }) => {
+        if (!alive) return
+        if (error || !data) { setMeError(error || '無法確認股票系統身分'); return }
+        setStockUser({ id: data.id, username: data.username, role: data.role, display_name: data.display_name })
+        setMeError('')
+      })
+    }
     getStockHealth().then(({ data }) => { if (alive) setOnline(Boolean(data?.online)) })
     return () => { alive = false }
   }, [])
@@ -55,6 +57,8 @@ export default function StockApp() {
 
   const Page = item?.page
   const initStock = query.get('stock') || ''
+  const groupOf = (k) => MODES[mode].groups.find(g => g.items.some(it => it.key === k))
+  const needsLogin = !user && Boolean(groupOf(item?.key)?.personal)
   const pageProps = { onSelectStock: goToStock, initStock }
 
   return (
@@ -82,6 +86,7 @@ export default function StockApp() {
             {online === true && <span className="pill online">股票服務在線</span>}
             {user && <span><b>{user.display_name}</b></span>}
             {user && <span className={`pill${isAdmin ? ' admin' : ''}`}>{user.role}</span>}
+            {!user && <Link to="/login" className="pill">未登入 · 登入後可看持股</Link>}
           </div>
         </div>
 
@@ -97,14 +102,15 @@ export default function StockApp() {
               <div key={g.group}>
                 <h3>{g.group}</h3>
                 {g.items.map(it => (
-                  <Link key={it.key} to={`/stock/${mode}/${it.key}`} className={it.key === item?.key ? 'on' : ''}>
-                    <span>{it.label}</span>
+                  <Link key={it.key} to={`/stock/${mode}/${it.key}`} className={it.key === item?.key ? 'on' : ''}
+                        title={g.personal && !user ? '需要登入' : undefined}>
+                    <span>{it.label}{g.personal && !user ? ' 🔒' : ''}</span>
                   </Link>
                 ))}
               </div>
             ))}
             <div className="side-foot">
-              {mode === 'admin' ? '一般使用者看不到這個模式。' : '資料經行事曆後端代理到股票系統；持股與交易只有你自己看得到。'}
+              {mode === 'admin' ? '一般使用者看不到這個模式。' : (user ? '資料經行事曆後端代理到股票系統；持股與交易只有你自己看得到。' : '分析頁不用登入；持股與閒置資金（🔒）登入後才看得到。')}
             </div>
           </aside>
 
@@ -115,6 +121,8 @@ export default function StockApp() {
             </div>
             {mode === 'admin' && !isAdmin ? (
               <div className="stock-forbidden">需要股票系統的 admin 角色</div>
+            ) : needsLogin ? (
+              <div className="stock-forbidden">這一頁是你自己的資料，<Link to="/login">登入</Link>後才看得到。其他分析頁不用登入。</div>
             ) : Page ? (
               <ErrorBoundary label={item.title}>
                 <Suspense fallback={<div className="muted">載入中…</div>}>

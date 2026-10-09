@@ -30,8 +30,10 @@ async function request(path, options = {}) {
                  ...(options.headers || {}) },
     })
 
-    // 401：行事曆的 token 無效或過期 → 清掉登入狀態回登入頁
+    // 401：有 token 代表行事曆的 token 無效或過期 → 清掉登入狀態回登入頁；
+    // 沒 token 是匿名在看需要登入的東西（持股、閒置資金）→ 只回錯誤，頁面自己提示登入
     if (res.status === 401) {
+      if (!token) return { data: null, notFound: false, error: '需要登入才能看這個', unauthenticated: true }
       clearSession()
       return { data: null, notFound: false, error: '登入已過期，請重新登入' }
     }

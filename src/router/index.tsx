@@ -6,7 +6,7 @@ import routes from "./config";
 import { Styles } from "../styles/styles";
 import { AuthContext } from "../contexts/AuthContext";
 
-const PROTECTED_ROUTES = ["/schedule", "/user", "/chat", "/stock/:mode?/:page?"];
+const PROTECTED_ROUTES = ["/schedule", "/user", "/chat"];   // /stock 公開：分析頁免登入，持股／閒置資金在 StockApp 內要求登入（Iteration 52）
 
 const PrivateRoute = ({ component: Component, path, ...rest }: any) => {
   const { isLoggedIn, isInitialized } = useContext(AuthContext);

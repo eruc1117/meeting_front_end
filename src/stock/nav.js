@@ -21,7 +21,7 @@ export const ANALYSIS = [
     { key: 'voting',        label: '投票決策',   title: '投票決策',        desc: '閘門過濾後的 Buy / Hold / Sell',   page: P('VotingDashboard') },
     { key: 'portfolio',     label: '月調倉',     title: '月調倉（打敗大盤）', desc: '候選對門檻、淨值對 0050、實驗日誌（Iteration 51）', page: P('PortfolioLab') },
   ] },
-  { group: '資產', items: [
+  { group: '資產', personal: true, items: [
     { key: 'holdings',      label: '我的持股',   title: '我的持股',        desc: '持股、交易台帳、建議 vs 實際',    page: P('Holdings') },
     { key: 'cash',          label: '閒置資金',   title: '閒置資金',        desc: '一週配置建議（風險調整後）',      page: P('IdleCash') },
   ] },

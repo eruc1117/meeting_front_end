@@ -24,7 +24,7 @@ export const ANALYSIS = [
   { group: '資產', personal: true, items: [
     { key: 'holdings',      label: '我的持股',   title: '我的持股',        desc: '持股、交易台帳、建議 vs 實際',    page: P('Holdings') },
     { key: 'cash',          label: '閒置資金',   title: '閒置資金',        desc: '一週配置建議（風險調整後）',      page: P('IdleCash') },
-    { key: 'trading',       label: '程式交易',   title: '程式交易（候選策略下單）', desc: '月清單 × 你的持股與現金 → 下單指令、登記、對帳（Iteration 57）', page: P('AlgoTrading') },
+    { key: 'trading',       label: '程式交易',   title: '程式交易（規則引擎：紙上／凱基）', desc: '選股、進出場、停損、下單規則寫成程式每天跑；預測、觀察、手動指令（Iteration 57／58）', page: P('AlgoTrading') },
   ] },
   { group: '新聞', items: [
     { key: 'sentiment',     label: '新聞情緒',   title: '新聞情緒',        desc: '規則引擎與 MOPS 公告分類',        page: P('NewsSentiment') },
@@ -47,6 +47,9 @@ export const ADMIN = [
   { group: '帳號', items: [
     { key: 'users',    label: '平台使用者', title: '平台使用者',  desc: '整套平台共用的帳號與 admin 身分（行事曆與股票同一份）', page: P('AdminPlatformUsers') },
     { key: 'local',    label: '股票本地帳號', title: '股票本地帳號', desc: '只在股票 API 存在的帳號（不走單一登入）；平台帳號會自動對應', page: P('AdminUsers') },
+  ] },
+  { group: '工程', items: [
+    { key: 'progress', label: '工作進度',   title: '工作進度（Claude Code）', desc: '目前 Claude 在做的任務、交接筆記、驗證結果、hook 事件、迭代與提交（只讀 repo 檔案）', page: P('WorkProgress') },
   ] },
   { group: '服務', items: [
     { key: 'health',   label: '健康狀態',   title: '健康狀態',    desc: '股票 API、爬蟲服務、排程',                page: P('AdminHealth') },

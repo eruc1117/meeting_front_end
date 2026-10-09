@@ -312,10 +312,26 @@ export const getPortfolioRuns = () => request('/portfolio/runs')
 export const getPortfolioRun = (id, step = 1) => request(`/portfolio/runs/${id}?step=${step}`)
 export const getPortfolioPaper = () => request('/portfolio/paper')
 
+// ── 工作進度（Claude Code harness，Iteration 55）：admin ─────────────────────
+export const getProgress = () => request('/progress')
+
 // ── 程式交易（Iteration 57）：清單 → 下單指令；執行紀錄 ──
 export const getTradingPlan = (cash, minTrade = 1000) =>
   request(`/trading/plan?cash=${encodeURIComponent(cash)}&min_trade=${encodeURIComponent(minTrade)}`)
 export const getTradingLog = () => request('/trading/log')
+// 引擎（Iteration 58）：GET status／orders／events／forecast；POST config／run（admin）
+export const getEngineStatus = () => request('/trading/engine/status')
+export const getEngineOrders = (status = null, limit = 200) =>
+  request(`/trading/engine/orders?limit=${limit}${status ? `&status=${encodeURIComponent(status)}` : ''}`)
+export const getEngineEvents = (limit = 100) => request(`/trading/engine/events?limit=${limit}`)
+export const getEngineForecast = () => request('/trading/engine/forecast')
+export const setEngineConfig = (payload) => request('/trading/engine/config', { method: 'POST', body: JSON.stringify(payload) })
+export const runEngineDay = (day = null) => request(`/trading/engine/run${day ? `?day=${day}` : ''}`, { method: 'POST', timeout: 180000 })
+// 回放（Iteration 59）
+export const getEngineReplay = (params) => {
+  const qs = new URLSearchParams(Object.entries(params).filter(([, v]) => v != null && v !== '').map(([k, v]) => [k, String(v)]))
+  return request(`/trading/engine/replay?${qs.toString()}`, { timeout: 180000 })
+}
 
 export const getWeeklyPlan = (stockId) =>
   request(`/voting/weekly-plan?stock_id=${encodeURIComponent(stockId)}`)

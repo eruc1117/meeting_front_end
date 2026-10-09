@@ -333,6 +333,8 @@ export const getSimReplay = (params) => {
   return request(`/sim/replay?${qs.toString()}`, { timeout: 180000 })
 }
 export const runSim = (payload) => request('/sim/run', { method: 'POST', body: JSON.stringify(payload), timeout: 180000 })
+// 條件規則（Iteration 61）
+export const runRules = (payload) => request('/sim/rules', { method: 'POST', body: JSON.stringify(payload), timeout: 180000 })
 // 回放（Iteration 59）
 export const getEngineReplay = (params) => {
   const qs = new URLSearchParams(Object.entries(params).filter(([, v]) => v != null && v !== '').map(([k, v]) => [k, String(v)]))

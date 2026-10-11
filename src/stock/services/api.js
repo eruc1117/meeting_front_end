@@ -311,6 +311,9 @@ export const getPortfolioCandidate = () => request('/portfolio/candidate')
 export const getPortfolioRuns = () => request('/portfolio/runs')
 export const getPortfolioRun = (id, step = 1) => request(`/portfolio/runs/${id}?step=${step}`)
 export const getPortfolioPaper = () => request('/portfolio/paper')
+// 正式策略（Iteration 64）
+export const getPortfolioOfficial = () => request('/portfolio/official')
+export const updatePortfolioOfficial = () => request('/portfolio/official/update', { method: 'POST', timeout: 180000 })
 
 // ── 工作進度（Claude Code harness，Iteration 55）：admin ─────────────────────
 export const getProgress = () => request('/progress')
